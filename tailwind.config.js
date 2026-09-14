@@ -4,85 +4,118 @@ export default {
   theme: {
     extend: {
       colors: {
-        // Primary palette — soft blue
-        primary: {
-          50:  '#EFF6FF',
-          100: '#DBEAFE',
-          200: '#BFDBFE',
-          300: '#93C5FD',
-          400: '#60A5FA',
+        // ── MotionPulse Dark Palette ───────────────────────────────
+        navy: {
+          900: '#060D1A',   // Deepest background
+          800: '#0B1220',   // Main background
+          700: '#0F1A2E',   // Section alt bg
+          600: '#121C2E',   // Card surface
+          500: '#1A2844',   // Elevated card
+          400: '#26354A',   // Border
+          300: '#3A4F6A',   // Muted border / divider
+          200: '#547090',   // Muted text dark
+          100: '#8BA4C0',   // Muted text light
+        },
+        // Primary accent — electric blue
+        electric: {
+          600: '#1D4ED8',
           500: '#3B82F6',
-          600: '#2563EB',
+          400: '#60A5FA',
+          300: '#93C5FD',
+          200: '#BFDBFE',
+          glow: 'rgba(59,130,246,0.25)',
         },
-        // Lavender / light purple
-        lavender: {
-          50:  '#F5F3FF',
-          100: '#EDE9FE',
-          200: '#DDD6FE',
-          300: '#C4B5FD',
-          400: '#A78BFA',
-          500: '#8B5CF6',
+        // Secondary accent — cyan
+        cyan: {
+          500: '#06B6D4',
+          400: '#22D3EE',
+          300: '#67E8F9',
+          200: '#A5F3FC',
+          glow: 'rgba(34,211,238,0.2)',
         },
-        // Pastel peach
-        peach: {
-          50:  '#FFF7ED',
-          100: '#FFEDD5',
-          200: '#FED7AA',
-          300: '#FDBA74',
-          400: '#FB923C',
+        // Active movement — coral
+        coral: {
+          600: '#E11D48',
+          500: '#F43F5E',
+          400: '#FB7185',
+          300: '#FDA4AF',
+          glow: 'rgba(251,113,133,0.2)',
         },
-        // Pastel green
-        mint: {
-          50:  '#F0FDF4',
-          100: '#DCFCE7',
-          200: '#BBF7D0',
-          300: '#86EFAC',
-          400: '#4ADE80',
+        // Success / connected — emerald
+        emerald: {
+          500: '#10B981',
+          400: '#34D399',
+          300: '#6EE7B7',
+          glow: 'rgba(52,211,153,0.2)',
         },
-        // Cream / neutral
-        cream: {
-          50:  '#FAFAF9',
-          100: '#F5F5F4',
-          200: '#E7E5E4',
-          300: '#D6D3D1',
-        },
+        // Text scale
+        muted: '#8BA4C0',
       },
       fontFamily: {
-        sans: ['Inter', 'ui-sans-serif', 'system-ui', 'sans-serif'],
+        sans:    ['Inter',   'ui-sans-serif', 'system-ui', 'sans-serif'],
         display: ['Poppins', 'ui-sans-serif', 'system-ui', 'sans-serif'],
+        mono:    ['JetBrains Mono', 'ui-monospace', 'monospace'],
       },
       borderRadius: {
-        '2xl': '1rem',
+        'sm':  '0.375rem',
+        'md':  '0.5rem',
+        'lg':  '0.75rem',
+        'xl':  '1rem',
+        '2xl': '1.25rem',
         '3xl': '1.5rem',
-        '4xl': '2rem',
       },
       boxShadow: {
-        'soft':    '0 2px 15px -3px rgba(0,0,0,0.07), 0 10px 20px -2px rgba(0,0,0,0.04)',
-        'soft-lg': '0 10px 40px -10px rgba(0,0,0,0.10)',
-        'glow-blue': '0 0 20px rgba(147,197,253,0.4)',
-        'glow-lavender': '0 0 20px rgba(196,181,253,0.4)',
+        'card':          '0 1px 3px rgba(0,0,0,0.4), 0 4px 16px rgba(0,0,0,0.3)',
+        'card-hover':    '0 4px 24px rgba(0,0,0,0.5)',
+        'glow-blue':     '0 0 20px rgba(59,130,246,0.3), 0 0 60px rgba(59,130,246,0.1)',
+        'glow-cyan':     '0 0 20px rgba(34,211,238,0.25)',
+        'glow-coral':    '0 0 16px rgba(251,113,133,0.3)',
+        'glow-emerald':  '0 0 16px rgba(52,211,153,0.25)',
+        'inset-border':  'inset 0 0 0 1px rgba(38,53,74,0.8)',
       },
       animation: {
-        'float':       'float 3s ease-in-out infinite',
-        'pulse-slow':  'pulse 3s cubic-bezier(0.4,0,0.6,1) infinite',
-        'bounce-once': 'bounceOnce 0.5s ease-out',
-        'shimmer':     'shimmer 2s linear infinite',
+        'pulse-slow':     'pulse 3s cubic-bezier(0.4,0,0.6,1) infinite',
+        'signal-travel':  'signalTravel 2s ease-in-out infinite',
+        'grid-pulse':     'gridPulse 4s ease-in-out infinite',
+        'hand-breathe':   'handBreathe 4s ease-in-out infinite',
+        'scan-line':      'scanLine 3s linear infinite',
+        'float-subtle':   'floatSubtle 6s ease-in-out infinite',
       },
       keyframes: {
-        float: {
-          '0%, 100%': { transform: 'translateY(0)' },
-          '50%':      { transform: 'translateY(-8px)' },
+        signalTravel: {
+          '0%':   { strokeDashoffset: '100' },
+          '100%': { strokeDashoffset: '0' },
+        },
+        gridPulse: {
+          '0%, 100%': { opacity: '0.03' },
+          '50%':      { opacity: '0.06' },
+        },
+        handBreathe: {
+          '0%, 100%': { transform: 'scale(1)' },
+          '50%':      { transform: 'scale(1.015)' },
+        },
+        scanLine: {
+          '0%':   { transform: 'translateY(-100%)' },
+          '100%': { transform: 'translateY(100vh)' },
+        },
+        floatSubtle: {
+          '0%, 100%': { transform: 'translateY(0px)' },
+          '50%':      { transform: 'translateY(-6px)' },
         },
         bounceOnce: {
           '0%':   { transform: 'scale(1)' },
-          '40%':  { transform: 'scale(1.25)' },
-          '70%':  { transform: 'scale(0.9)' },
+          '30%':  { transform: 'scale(1.28)' },
+          '60%':  { transform: 'scale(0.93)' },
+          '80%':  { transform: 'scale(1.06)' },
           '100%': { transform: 'scale(1)' },
         },
-        shimmer: {
-          '0%':   { backgroundPosition: '-200% 0' },
-          '100%': { backgroundPosition: '200% 0' },
-        },
+      },
+      backgroundImage: {
+        'grid-pattern': `linear-gradient(rgba(59,130,246,0.04) 1px, transparent 1px),
+                         linear-gradient(90deg, rgba(59,130,246,0.04) 1px, transparent 1px)`,
+      },
+      backgroundSize: {
+        'grid': '40px 40px',
       },
     },
   },

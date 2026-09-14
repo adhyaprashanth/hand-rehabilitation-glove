@@ -1,25 +1,18 @@
 /**
- * pages/Home/SensorReadingsSection.jsx
- *
- * Section 3 — Live Sensor Readings.
- * Shows all five FingerCards in a responsive grid.
+ * pages/Home/SensorReadingsSection.jsx — MotionPulse dark theme
  */
 
 import { motion } from 'framer-motion';
 import FingerCard from '../../components/sensors/FingerCard';
 import SectionTitle from '../../components/common/SectionTitle';
 
-/**
- * @param {{ fingers: import('../../types').FingerData[] }} props
- */
 export default function SensorReadingsSection({ fingers = [] }) {
   return (
-    <section id="sensor-readings" className="py-20 bg-gradient-to-br from-blue-50/50 to-purple-50/50">
+    <section id="sensor-readings" className="py-24" style={{ background: '#0C1828' }}>
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
         <SectionTitle
-          emoji="📊"
-          title="Live Sensor Readings"
-          subtitle="Five independent flex sensors, each monitoring a different finger."
+          title="SENSOR READINGS"
+          subtitle="Five independent flex sensors — each individually calibrated, each monitored at 150ms intervals."
         />
 
         <motion.div
@@ -31,7 +24,7 @@ export default function SensorReadingsSection({ fingers = [] }) {
           {fingers.map((finger, i) => (
             <motion.div
               key={finger.id}
-              initial={{ opacity: 0, y: 24 }}
+              initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ delay: i * 0.07 }}
@@ -41,26 +34,24 @@ export default function SensorReadingsSection({ fingers = [] }) {
           ))}
         </motion.div>
 
-        {/* Info strip */}
+        {/* Status legend */}
         <motion.div
           initial={{ opacity: 0 }}
           whileInView={{ opacity: 1 }}
           viewport={{ once: true }}
           transition={{ delay: 0.4 }}
-          className="mt-6 flex items-center justify-center gap-3 flex-wrap"
+          className="mt-6 flex items-center justify-center gap-6 flex-wrap"
         >
-          <span className="flex items-center gap-1.5 text-xs text-gray-400">
-            <span className="w-2 h-2 rounded-full bg-orange-400 animate-pulse" />
-            Bending ≥ 60%
-          </span>
-          <span className="flex items-center gap-1.5 text-xs text-gray-400">
-            <span className="w-2 h-2 rounded-full bg-blue-400 animate-pulse" />
-            Active 20–60%
-          </span>
-          <span className="flex items-center gap-1.5 text-xs text-gray-400">
-            <span className="w-2 h-2 rounded-full bg-gray-300" />
-            Resting &lt; 20%
-          </span>
+          {[
+            { color: '#FB7185', label: 'BENDING  ≥ 60%' },
+            { color: '#3B82F6', label: 'ACTIVE  20–60%' },
+            { color: '#2A3F58', label: 'RESTING  < 20%' },
+          ].map(({ color, label }) => (
+            <div key={label} className="flex items-center gap-2">
+              <span className="w-1.5 h-1.5 rounded-full" style={{ background: color, boxShadow: color !== '#2A3F58' ? `0 0 6px ${color}` : 'none' }} />
+              <span className="label-mono" style={{ color: '#7090B0', fontSize: '0.6rem', letterSpacing: '0.08em' }}>{label}</span>
+            </div>
+          ))}
         </motion.div>
       </div>
     </section>

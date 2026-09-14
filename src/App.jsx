@@ -40,7 +40,7 @@ export default function App() {
   } = useSensorData();
 
   return (
-    <div className="min-h-screen">
+    <div className="min-h-screen" style={{ background: '#08111F' }}>
       <Navbar />
 
       {/* Hero */}
@@ -69,7 +69,7 @@ export default function App() {
       {/* Calibration + system status */}
       <CalibrationSection systemStatus={systemStatus} />
 
-      <Footer isDemoMode={isDemoMode} />
+      <Footer />
     </div>
   );
 }

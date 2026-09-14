@@ -1,24 +1,20 @@
 /**
- * components/dashboard/MovementDetector.jsx
+ * components/dashboard/MovementDetector.jsx — MotionPulse dark theme
  *
- * Displays the currently detected hand/finger movement.
- * Smoothly transitions between movements as they change.
- * Shows confidence level and a "Movement Recognised" badge.
+ * Dark card showing detected movement — clean, technical, no emojis as main UI.
+ * Movement transitions preserved. Confidence bar uses electric blue → cyan gradient.
  */
 
 import { motion, AnimatePresence } from 'framer-motion';
-import { CheckCircle2, Activity } from 'lucide-react';
+import { CheckCircle2, Activity, Zap } from 'lucide-react';
 
-/**
- * @param {{ movement: import('../../types').MovementData }} props
- */
 export default function MovementDetector({ movement }) {
   const {
-    name = 'Detecting...',
-    emoji = '🤔',
+    name        = 'Detecting...',
+    emoji       = '',
     description = '',
-    detected = false,
-    confidence = 0,
+    detected    = false,
+    confidence  = 0,
   } = movement || {};
 
   return (
@@ -26,61 +22,89 @@ export default function MovementDetector({ movement }) {
       initial={{ opacity: 0, scale: 0.95 }}
       whileInView={{ opacity: 1, scale: 1 }}
       viewport={{ once: true }}
-      className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-purple-50 to-blue-50 border border-purple-100 p-6 flex flex-col gap-4"
+      className="relative overflow-hidden flex flex-col gap-5 p-6"
+      style={{
+        background: '#0F1E30',
+        border: '1px solid #26354A',
+        borderRadius: '1rem',
+        boxShadow: detected
+          ? '0 0 24px rgba(59,130,246,0.15)'
+          : '0 2px 12px rgba(0,0,0,0.4)',
+        transition: 'box-shadow 0.5s',
+      }}
     >
-      {/* Background decoration */}
-      <div className="absolute top-0 right-0 w-32 h-32 rounded-full bg-purple-100 opacity-30 -translate-y-1/2 translate-x-1/2" />
+      {/* Top accent line — glows when detected */}
+      <div className="absolute top-0 left-0 right-0 h-0.5 rounded-t-xl"
+        style={{
+          background: detected
+            ? 'linear-gradient(90deg, #3B82F6, #22D3EE)'
+            : '#2A3F58',
+          opacity: detected ? 1 : 0.4,
+          transition: 'all 0.5s',
+        }} />
 
       {/* Header */}
-      <div className="flex items-center gap-2">
-        <Activity className="w-4 h-4 text-purple-500" />
-        <p className="text-sm font-semibold text-purple-600">Movement Detection</p>
-      </div>
-
-      {/* Movement display */}
-      <div className="flex flex-col items-center gap-3 py-4">
-        <AnimatePresence mode="wait">
-          <motion.div
-            key={name}
-            initial={{ opacity: 0, y: 12, scale: 0.9 }}
-            animate={{ opacity: 1, y: 0, scale: 1 }}
-            exit={{ opacity: 0, y: -12, scale: 0.9 }}
-            transition={{ type: 'spring', stiffness: 260, damping: 22 }}
-            className="flex flex-col items-center gap-2"
-          >
-            <span className="text-5xl">{emoji}</span>
-            <h3 className="font-display font-700 text-xl text-gray-800">{name}</h3>
-            {description && (
-              <p className="text-sm text-gray-400 text-center">{description}</p>
-            )}
-          </motion.div>
-        </AnimatePresence>
-
-        {/* Recognised badge */}
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-2">
+          <Activity className="w-4 h-4" style={{ color: '#3B82F6' }} />
+          <span className="label-mono" style={{ color: '#60A5FA', fontSize: '0.65rem', letterSpacing: '0.1em' }}>
+            MOVEMENT DETECTION
+          </span>
+        </div>
         <AnimatePresence>
           {detected && (
             <motion.div
               initial={{ opacity: 0, scale: 0.8 }}
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0, scale: 0.8 }}
-              className="flex items-center gap-1.5 px-3 py-1.5 bg-green-100 border border-green-200 rounded-full"
+              className="flex items-center gap-1.5 px-2.5 py-1 rounded-md"
+              style={{ background: 'rgba(52,211,153,0.12)', border: '1px solid rgba(52,211,153,0.3)' }}
             >
-              <CheckCircle2 className="w-3.5 h-3.5 text-green-600" />
-              <span className="text-xs font-semibold text-green-700">✓ Movement Recognised</span>
+              <CheckCircle2 className="w-3 h-3" style={{ color: '#34D399' }} />
+              <span className="label-mono" style={{ color: '#34D399', fontSize: '0.6rem' }}>RECOGNISED</span>
             </motion.div>
           )}
         </AnimatePresence>
       </div>
 
-      {/* Confidence bar */}
-      <div className="space-y-1.5">
-        <div className="flex justify-between text-xs text-gray-400">
-          <span>Confidence</span>
-          <span className="font-mono font-semibold text-purple-600">{confidence}%</span>
-        </div>
-        <div className="h-2 bg-purple-100 rounded-full overflow-hidden">
+      {/* Movement name */}
+      <div className="flex flex-col items-center gap-2 py-4">
+        <AnimatePresence mode="wait">
           <motion.div
-            className="h-full rounded-full bg-gradient-to-r from-purple-400 to-blue-400"
+            key={name}
+            initial={{ opacity: 0, y: 10, scale: 0.95 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: -10, scale: 0.95 }}
+            transition={{ type: 'spring', stiffness: 260, damping: 22 }}
+            className="flex flex-col items-center gap-2"
+          >
+            {/* Emoji kept small as supplementary info, not the main visual */}
+            {emoji && (
+              <span className="text-3xl opacity-60">{emoji}</span>
+            )}
+            <h3
+              className="font-display font-700 text-2xl text-center"
+              style={{ color: detected ? '#E8F2FF' : '#95B2CC', transition: 'color 0.4s' }}
+            >
+              {name}
+            </h3>
+            {description && (
+              <p className="text-xs text-center" style={{ color: '#7090B0' }}>{description}</p>
+            )}
+          </motion.div>
+        </AnimatePresence>
+      </div>
+
+      {/* Confidence bar */}
+      <div className="space-y-2">
+        <div className="flex justify-between items-center">
+          <span className="label-mono" style={{ color: '#7090B0', fontSize: '0.6rem' }}>CONFIDENCE</span>
+          <span className="font-mono text-xs font-semibold" style={{ color: '#60A5FA' }}>{confidence}%</span>
+        </div>
+        <div className="h-1.5 rounded-full overflow-hidden" style={{ background: '#152440' }}>
+          <motion.div
+            className="h-full rounded-full"
+            style={{ background: 'linear-gradient(90deg, #3B82F6, #22D3EE)' }}
             animate={{ width: `${confidence}%` }}
             transition={{ type: 'spring', stiffness: 60, damping: 20 }}
           />

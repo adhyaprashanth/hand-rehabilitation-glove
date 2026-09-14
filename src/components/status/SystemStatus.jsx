@@ -1,64 +1,166 @@
 /**
- * components/status/SystemStatus.jsx
+ * components/status/SystemStatus.jsx — MotionPulse dark theme
  *
- * Shows the real-time system status: ESP32, sensors, Wi-Fi, Firebase.
- * Statuses come from the central useSensorData hook.
+ * Dark status grid — technical dark panels with
+ * icon + status dot + label.
  */
 
 import { motion } from 'framer-motion';
 import { Wifi, Database, Cpu, Activity } from 'lucide-react';
 
 const STATUS_ITEMS = [
-  { key: 'esp32Connected', label: 'ESP32',           icon: Cpu,      color: 'blue' },
-  { key: 'sensorsActive',  label: 'Flex Sensors',    icon: Activity, color: 'purple' },
-  { key: 'wifiConnected',  label: 'Wi-Fi',           icon: Wifi,     color: 'green' },
-  { key: 'firebaseSynced', label: 'Firebase Synced', icon: Database, color: 'orange' },
+  {
+    key: 'esp32Connected',
+    label: 'ESP32',
+    sublabel: 'MICROCONTROLLER',
+    icon: Cpu,
+    accent: '#3B82F6',
+  },
+  {
+    key: 'sensorsActive',
+    label: 'Flex Sensors',
+    sublabel: '5 ACTIVE INPUTS',
+    icon: Activity,
+    accent: '#22D3EE',
+  },
+  {
+    key: 'wifiConnected',
+    label: 'Wi-Fi',
+    sublabel: 'NETWORK LINK',
+    icon: Wifi,
+    accent: '#34D399',
+  },
+  {
+    key: 'firebaseSynced',
+    label: 'Firebase',
+    sublabel: 'CLOUD SYNC',
+    icon: Database,
+    accent: '#FB7185',
+  },
 ];
 
-const colorMap = {
-  blue:   { dot: 'bg-blue-400',   text: 'text-blue-600',   bg: 'bg-blue-50',   border: 'border-blue-100' },
-  purple: { dot: 'bg-purple-400', text: 'text-purple-600', bg: 'bg-purple-50', border: 'border-purple-100' },
-  green:  { dot: 'bg-green-400',  text: 'text-green-600',  bg: 'bg-green-50',  border: 'border-green-100' },
-  orange: { dot: 'bg-orange-400', text: 'text-orange-600', bg: 'bg-orange-50', border: 'border-orange-100' },
-};
-
-/**
- * @param {{ systemStatus: import('../../types').SystemStatus }} props
- */
 export default function SystemStatus({ systemStatus = {} }) {
   return (
     <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-      {STATUS_ITEMS.map(({ key, label, icon: Icon, color }, i) => {
-        const active = systemStatus[key] !== false;
-        const c = colorMap[color];
-        return (
-          <motion.div
-            key={key}
-            initial={{ opacity: 0, scale: 0.9 }}
-            whileInView={{ opacity: 1, scale: 1 }}
-            viewport={{ once: true }}
-            transition={{ delay: i * 0.08 }}
-            className={`flex flex-col items-center gap-2.5 p-4 rounded-2xl border ${
-              active ? `${c.bg} ${c.border}` : 'bg-gray-50 border-gray-100'
-            }`}
-          >
-            <div className={`w-10 h-10 rounded-2xl flex items-center justify-center ${
-              active ? c.bg : 'bg-gray-100'
-            } border ${active ? c.border : 'border-gray-100'}`}>
-              <Icon className={`w-5 h-5 ${active ? c.text : 'text-gray-300'}`} />
-            </div>
+      {STATUS_ITEMS.map(
+        ({ key, label, sublabel, icon: Icon, accent }, i) => {
+          const active = systemStatus[key] !== false;
 
-            <div className="flex items-center gap-1.5">
-              <span className={`w-2 h-2 rounded-full ${active ? `${c.dot} animate-pulse` : 'bg-gray-300'}`} />
-              <span className={`text-xs font-semibold ${active ? c.text : 'text-gray-400'}`}>
-                {active ? 'Active' : 'Offline'}
-              </span>
-            </div>
+          return (
+            <motion.div
+              key={key}
+              initial={{ opacity: 0, y: 16 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ delay: i * 0.07 }}
+              className="flex flex-col gap-3 p-4"
+              style={{
+                background: '#0F1E30',
+                border: `1px solid ${
+                  active ? accent + '30' : '#2A3F58'
+                }`,
+                borderRadius: '0.875rem',
+                boxShadow: active
+                  ? `0 0 16px ${accent}12`
+                  : '0 2px 8px rgba(0,0,0,0.3)',
+                transition:
+                  'border-color 0.4s, box-shadow 0.4s',
+              }}
+            >
+              {/* Icon */}
+              <div
+                className="w-9 h-9 rounded-lg flex items-center justify-center"
+                style={{
+                  background: active
+                    ? accent + '15'
+                    : '#152440',
 
-            <p className="text-xs text-gray-500 font-medium text-center">{label}</p>
-          </motion.div>
-        );
-      })}
+                  border: `1px solid ${
+                    active ? accent + '30' : '#2A3F58'
+                  }`,
+                }}
+              >
+                <Icon
+                  className="w-4 h-4"
+                  style={{
+                    color: active
+                      ? accent
+                      : '#7090B0',
+                  }}
+                />
+              </div>
+
+              {/* Info */}
+              <div className="flex flex-col gap-0.5">
+
+                {/* Main label */}
+                <span
+                  className="font-medium text-sm"
+                  style={{
+                    color: active
+                      ? '#E8F2FF'
+                      : '#95B2CC',
+                  }}
+                >
+                  {label}
+                </span>
+
+                {/* Sublabel */}
+                <span
+                  className="label-mono"
+                  style={{
+                    color: active
+                      ? '#95B2CC'
+                      : '#7090B0',
+                    fontSize: '0.58rem',
+                  }}
+                >
+                  {sublabel}
+                </span>
+
+              </div>
+
+              {/* Status row */}
+              <div className="flex items-center gap-1.5">
+
+                {/* Status dot */}
+                <span
+                  className="w-1.5 h-1.5 rounded-full"
+                  style={{
+                    background: active
+                      ? accent
+                      : '#2A3F58',
+
+                    boxShadow: active
+                      ? `0 0 6px ${accent}`
+                      : 'none',
+
+                    animation: active
+                      ? 'pulseGlow 2s ease-in-out infinite'
+                      : 'none',
+                  }}
+                />
+
+                {/* Status text */}
+                <span
+                  className="label-mono"
+                  style={{
+                    color: active
+                      ? accent
+                      : '#7090B0',
+
+                    fontSize: '0.6rem',
+                    letterSpacing: '0.08em',
+                  }}
+                >
+                  {active ? 'ACTIVE' : 'OFFLINE'}
+                </span>
+
+              </div>
+            </motion.div>
+          );
+        }
+      )}
     </div>
   );
 }

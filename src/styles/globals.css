@@ -1,116 +1,169 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Poppins:wght@400;500;600;700;800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Poppins:wght@500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap');
 
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-/* ─── Design Tokens ─────────────────────────────────────────── */
+/* ─── MotionPulse Design Tokens — Dark Navy Theme ───────────── */
 :root {
-  --color-bg:         #FAFAFA;
-  --color-surface:    #FFFFFF;
-  --color-primary:    #93C5FD;
-  --color-lavender:   #C4B5FD;
-  --color-peach:      #FDBA74;
-  --color-mint:       #86EFAC;
-  --color-text:       #374151;
-  --color-text-muted: #9CA3AF;
-  --radius-card:      1.25rem;
-  --shadow-card:      0 4px 24px -4px rgba(0,0,0,0.08);
+  --bg-primary:       #08111F;
+  --bg-secondary:     #0C1828;
+  --bg-card:          #0F1E30;
+  --bg-card-elevated: #152440;
+  --border-subtle:    #2A3F58;
+  --border-muted:     #1E3048;
+
+  --accent-blue:      #3B82F6;
+  --accent-cyan:      #22D3EE;
+  --accent-coral:     #FB7185;
+  --accent-emerald:   #34D399;
+
+  --text-primary:     #E8F2FF;
+  --text-secondary:   #95B2CC;
+  --text-muted:       #7090B0;
+  --text-faint:       #4A6580;
+
+  --radius-card:      1rem;
+  --shadow-card:      0 2px 16px rgba(0,0,0,0.5), 0 0 0 1px rgba(42,63,88,0.4);
 }
 
 /* ─── Base ───────────────────────────────────────────────────── */
-* {
-  box-sizing: border-box;
-  scroll-behavior: smooth;
-}
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; }
 
 body {
   font-family: 'Inter', sans-serif;
-  background-color: var(--color-bg);
-  color: var(--color-text);
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
   -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
-/* ─── Scrollbar ─────────────────────────────────────────────── */
-::-webkit-scrollbar { width: 6px; }
-::-webkit-scrollbar-track { background: #F3F4F6; }
-::-webkit-scrollbar-thumb { background: #C4B5FD; border-radius: 99px; }
-::-webkit-scrollbar-thumb:hover { background: #A78BFA; }
+/* ─── Scrollbar ──────────────────────────────────────────────── */
+::-webkit-scrollbar       { width: 5px; }
+::-webkit-scrollbar-track { background: #060E1A; }
+::-webkit-scrollbar-thumb { background: #2A3F58; border-radius: 99px; }
+::-webkit-scrollbar-thumb:hover { background: #3B82F6; }
 
-/* ─── Utility Classes ──────────────────────────────────────── */
-.section-padding {
-  @apply px-4 sm:px-6 lg:px-8;
-}
-
-.card {
-  background: var(--color-surface);
+/* ─── Surface Utilities ─────────────────────────────────────── */
+.surface {
+  background: var(--bg-card);
+  border: 1px solid var(--border-subtle);
   border-radius: var(--radius-card);
   box-shadow: var(--shadow-card);
 }
-
-/* Gradient backgrounds */
-.bg-gradient-hero {
-  background: linear-gradient(135deg, #EFF6FF 0%, #F5F3FF 40%, #FFF7ED 100%);
-}
-.bg-gradient-section-alt {
-  background: linear-gradient(135deg, #F5F3FF 0%, #EFF6FF 100%);
+.surface-elevated {
+  background: var(--bg-card-elevated);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-card);
 }
 
-/* Progress bar custom styling */
-.progress-bar {
-  transition: width 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+/* ─── Tech Grid Background ───────────────────────────────────── */
+.bg-tech-grid {
+  background-image:
+    linear-gradient(rgba(59,130,246,0.06) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(59,130,246,0.06) 1px, transparent 1px);
+  background-size: 44px 44px;
 }
 
-/* Graph container */
+/* ─── Glow Effects ───────────────────────────────────────────── */
+.glow-blue  { box-shadow: 0 0 24px rgba(59,130,246,0.3), 0 0 64px rgba(59,130,246,0.12); }
+.glow-cyan  { box-shadow: 0 0 20px rgba(34,211,238,0.25); }
+.glow-coral { box-shadow: 0 0 16px rgba(251,113,133,0.25); }
+.text-glow-blue { text-shadow: 0 0 20px rgba(59,130,246,0.45); }
+
+/* ─── Recharts dark overrides ────────────────────────────────── */
 .recharts-surface { overflow: visible; }
+.recharts-cartesian-grid line { stroke: #1E3048; }
+.recharts-text { fill: #4A6580 !important; }
 
-/* Video modal backdrop */
+/* ─── Modal backdrop ─────────────────────────────────────────── */
 .modal-backdrop {
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
 }
 
-/* Floating animation */
-@keyframes float {
-  0%, 100% { transform: translateY(0px); }
-  50%       { transform: translateY(-10px); }
+/* ─── Scan line animation ────────────────────────────────────── */
+@keyframes scanLine {
+  0%   { top: -2px; opacity: 0.5; }
+  50%  { opacity: 0.25; }
+  100% { top: 100%; opacity: 0; }
 }
-.animate-float { animation: float 3.5s ease-in-out infinite; }
-
-/* Bounce-once for rep counter */
-@keyframes bounceOnce {
-  0%   { transform: scale(1); }
-  30%  { transform: scale(1.3); }
-  60%  { transform: scale(0.92); }
-  80%  { transform: scale(1.06); }
-  100% { transform: scale(1); }
+.scan-line {
+  position: absolute;
+  left: 0; right: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(59,130,246,0.3), rgba(34,211,238,0.2), transparent);
+  animation: scanLine 10s linear infinite;
+  pointer-events: none;
 }
-.animate-bounce-once { animation: bounceOnce 0.55s ease-out forwards; }
 
-/* Pulse glow for active states */
+/* ─── Pulse glow ─────────────────────────────────────────────── */
 @keyframes pulseGlow {
-  0%, 100% { box-shadow: 0 0 0 0 rgba(147,197,253,0.4); }
-  50%       { box-shadow: 0 0 0 8px rgba(147,197,253,0); }
-}
-.animate-pulse-glow { animation: pulseGlow 2s ease-in-out infinite; }
-
-/* Shimmer loading effect */
-@keyframes shimmer {
-  0%   { background-position: -200% 0; }
-  100% { background-position:  200% 0; }
-}
-.shimmer-bg {
-  background: linear-gradient(90deg, #F3F4F6 25%, #E5E7EB 50%, #F3F4F6 75%);
-  background-size: 200% 100%;
-  animation: shimmer 1.5s infinite;
+  0%, 100% { box-shadow: 0 0 0 0 rgba(52,211,153,0.5); }
+  50%       { box-shadow: 0 0 0 6px rgba(52,211,153,0); }
 }
 
-/* Flow diagram arrow */
-.flow-arrow::after {
-  content: '';
-  display: block;
-  width: 2px;
-  height: 2rem;
-  background: linear-gradient(180deg, #93C5FD, #C4B5FD);
-  margin: 0 auto;
+/* ─── Signal travel (DataFlow dots) ──────────────────────────── */
+@keyframes signalTravel {
+  0%   { opacity: 0; transform: translateY(0); }
+  20%  { opacity: 1; }
+  80%  { opacity: 1; }
+  100% { opacity: 0; transform: translateY(28px); }
 }
+.animate-signal { animation: signalTravel 1.8s ease-in-out infinite; }
+
+/* ─── Skeleton pulse (background hand) ───────────────────────── */
+@keyframes skeletonPulse {
+  0%, 100% { opacity: 0.025; }
+  50%       { opacity: 0.045; }
+}
+.animate-skeleton-pulse { animation: skeletonPulse 6s ease-in-out infinite; }
+
+/* ─── Float ──────────────────────────────────────────────────── */
+@keyframes floatSubtle {
+  0%, 100% { transform: translateY(0px); }
+  50%       { transform: translateY(-7px); }
+}
+.animate-float-subtle { animation: floatSubtle 6s ease-in-out infinite; }
+
+/* ─── Typography utilities ───────────────────────────────────── */
+.label-mono {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.65rem;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+/* ─── Buttons ────────────────────────────────────────────────── */
+.btn-primary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1.75rem;
+  background: #3B82F6;
+  color: #fff;
+  font-weight: 600;
+  font-size: 0.875rem;
+  border-radius: 0.625rem;
+  border: 1px solid rgba(59,130,246,0.4);
+  transition: all 0.2s;
+  box-shadow: 0 0 20px rgba(59,130,246,0.3);
+}
+.btn-primary:hover  { background: #2563EB; box-shadow: 0 0 32px rgba(59,130,246,0.45); transform: translateY(-1px); }
+.btn-primary:active { transform: scale(0.97); }
+
+.btn-ghost {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1rem;
+  color: var(--text-muted);
+  font-size: 0.8125rem;
+  font-weight: 500;
+  border-radius: 0.5rem;
+  transition: all 0.2s;
+}
+.btn-ghost:hover { background: rgba(42,63,88,0.5); color: var(--text-primary); }

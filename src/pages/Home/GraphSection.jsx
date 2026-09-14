@@ -1,24 +1,17 @@
 /**
- * pages/Home/GraphSection.jsx
- *
- * Section 6 — Live Sensor Activity Graph.
- * Wraps the SensorGraph component in a section layout.
+ * pages/Home/GraphSection.jsx — MotionPulse dark theme
  */
 
 import SensorGraph from '../../components/sensors/SensorGraph';
 import SectionTitle from '../../components/common/SectionTitle';
 
-/**
- * @param {{ history: Object }} props
- */
 export default function GraphSection({ history }) {
   return (
-    <section id="graph" className="py-20 bg-white">
+    <section id="graph" className="py-24" style={{ background: '#08111F' }}>
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
         <SectionTitle
-          emoji="📈"
-          title="Live Sensor Activity"
-          subtitle="Select a finger to see how its bending changes over time."
+          title="LIVE SENSOR GRAPH"
+          subtitle="Select any finger to view its bending percentage over time."
         />
         <SensorGraph history={history} />
       </div>

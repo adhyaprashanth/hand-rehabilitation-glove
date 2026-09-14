@@ -1,95 +1,86 @@
 /**
- * config/exercises.js
+ * config/exercises.js — MotionPulse dark theme edition
  *
- * ─── EXERCISE CONFIGURATION ─────────────────────────────────────────────────
- *
- * To add a new exercise:
- *   1. Add a new object to the EXERCISES array below.
- *   2. Set `videoUrl` to a YouTube embed URL (https://www.youtube.com/embed/<id>)
- *      or any <iframe>-compatible video URL.
- *
- * To change a video:
- *   Simply replace the `videoUrl` field — no component edits needed.
- *
- * @type {import('../types').Exercise[]}
+ * Exercise definitions with dark theme color assignments.
+ * All videoUrl placeholders preserved — edit these to add real YouTube links.
  */
+
 export const EXERCISES = [
   {
-    id: 'hand-flexion',
-    name: 'Hand Flexion',
-    emoji: '✊',
-    description: 'Slowly bend all fingers inward to form a gentle fist, then release.',
-    videoUrl: 'https://www.youtube.com/embed/dQw4w9WgXcQ', // ← Replace with real video
-    duration: '30 seconds',
-    repsTarget: 10,
-    benefits: ['Improves grip strength', 'Increases finger flexibility'],
-    bgColor: 'bg-blue-50',
-    borderColor: 'border-blue-200',
-    iconBg: 'bg-blue-100',
-    iconColor: 'text-blue-600',
-    btnColor: 'bg-blue-500 hover:bg-blue-600',
+    id:          'hand-flexion',
+    name:        'Hand Flexion',
+    description: 'Gently curl all fingers into a fist, then slowly open. Targets all flexor tendons.',
+    duration:    '30s',
+    repsTarget:  12,
+    videoUrl:    'https://www.youtube.com/embed/dQw4w9WgXcQ', // TODO: Replace with real exercise video
+    accent:      '#3B82F6',
+    bgColor:     'rgba(59,130,246,0.06)',
+    borderColor: 'rgba(59,130,246,0.2)',
+    iconBg:      'rgba(59,130,246,0.12)',
+    iconColor:   '#60A5FA',
+    btnColor:    '#3B82F6',
+    benefits:    ['Flexor tendon strength', 'Full range of motion', 'Grip coordination'],
   },
   {
-    id: 'hand-extension',
-    name: 'Hand Extension',
-    emoji: '🖐',
-    description: 'Straighten and stretch all fingers outward as far as comfortable.',
-    videoUrl: 'https://www.youtube.com/embed/dQw4w9WgXcQ', // ← Replace with real video
-    duration: '30 seconds',
-    repsTarget: 10,
-    benefits: ['Reduces stiffness', 'Restores range of motion'],
-    bgColor: 'bg-purple-50',
-    borderColor: 'border-purple-200',
-    iconBg: 'bg-purple-100',
-    iconColor: 'text-purple-600',
-    btnColor: 'bg-purple-500 hover:bg-purple-600',
+    id:          'hand-extension',
+    name:        'Hand Extension',
+    description: 'Spread fingers wide and extend them fully backward. Targets extensor muscles.',
+    duration:    '30s',
+    repsTarget:  12,
+    videoUrl:    'https://www.youtube.com/embed/dQw4w9WgXcQ',
+    accent:      '#22D3EE',
+    bgColor:     'rgba(34,211,238,0.06)',
+    borderColor: 'rgba(34,211,238,0.2)',
+    iconBg:      'rgba(34,211,238,0.12)',
+    iconColor:   '#22D3EE',
+    btnColor:    '#06B6D4',
+    benefits:    ['Extensor strength', 'Finger separation', 'Wrist stability'],
   },
   {
-    id: 'pinch-movement',
-    name: 'Pinch Movement',
-    emoji: '🤏',
-    description: 'Bring your thumb tip to meet your index finger, forming a pinch.',
-    videoUrl: 'https://www.youtube.com/embed/dQw4w9WgXcQ', // ← Replace with real video
-    duration: '20 seconds',
-    repsTarget: 15,
-    benefits: ['Fine motor control', 'Pinch strength development'],
-    bgColor: 'bg-orange-50',
-    borderColor: 'border-orange-200',
-    iconBg: 'bg-orange-100',
-    iconColor: 'text-orange-600',
-    btnColor: 'bg-orange-500 hover:bg-orange-600',
+    id:          'pinch-movement',
+    name:        'Pinch Movement',
+    description: 'Bring thumb and index finger together in a precise pinch. Improves fine motor control.',
+    duration:    '45s',
+    repsTarget:  15,
+    videoUrl:    'https://www.youtube.com/embed/dQw4w9WgXcQ',
+    accent:      '#34D399',
+    bgColor:     'rgba(52,211,153,0.06)',
+    borderColor: 'rgba(52,211,153,0.2)',
+    iconBg:      'rgba(52,211,153,0.12)',
+    iconColor:   '#34D399',
+    btnColor:    '#10B981',
+    benefits:    ['Pinch strength', 'Fine motor precision', 'Thumb opposition'],
   },
   {
-    id: 'finger-flexion',
-    name: 'Finger Flexion',
-    emoji: '🤙',
-    description: 'Curl individual fingers one at a time from index to little finger.',
-    videoUrl: 'https://www.youtube.com/embed/dQw4w9WgXcQ', // ← Replace with real video
-    duration: '45 seconds',
-    repsTarget: 8,
-    benefits: ['Independent finger control', 'Tendon gliding'],
-    bgColor: 'bg-mint-50',
-    borderColor: 'border-green-200',
-    iconBg: 'bg-green-100',
-    iconColor: 'text-green-600',
-    btnColor: 'bg-green-500 hover:bg-green-600',
+    id:          'finger-flexion',
+    name:        'Finger Flexion',
+    description: 'Curl each finger independently, one at a time. Isolated tendon conditioning.',
+    duration:    '60s',
+    repsTarget:  10,
+    videoUrl:    'https://www.youtube.com/embed/dQw4w9WgXcQ',
+    accent:      '#FB7185',
+    bgColor:     'rgba(251,113,133,0.06)',
+    borderColor: 'rgba(251,113,133,0.2)',
+    iconBg:      'rgba(251,113,133,0.12)',
+    iconColor:   '#FB7185',
+    btnColor:    '#F43F5E',
+    benefits:    ['Independent control', 'Isolated conditioning', 'Coordination'],
   },
   {
-    id: 'finger-extension',
-    name: 'Finger Extension',
-    emoji: '🖖',
-    description: 'Extend and spread all fingers wide, holding for 3–5 seconds.',
-    videoUrl: 'https://www.youtube.com/embed/dQw4w9WgXcQ', // ← Replace with real video
-    duration: '30 seconds',
-    repsTarget: 10,
-    benefits: ['Intrinsic muscle strengthening', 'Reduces contractures'],
-    bgColor: 'bg-pink-50',
-    borderColor: 'border-pink-200',
-    iconBg: 'bg-pink-100',
-    iconColor: 'text-pink-600',
-    btnColor: 'bg-pink-500 hover:bg-pink-600',
+    id:          'finger-extension',
+    name:        'Finger Extension',
+    description: 'Straighten each finger fully against resistance. Strengthens dorsal muscles.',
+    duration:    '45s',
+    repsTarget:  10,
+    videoUrl:    'https://www.youtube.com/embed/dQw4w9WgXcQ',
+    accent:      '#A78BFA',
+    bgColor:     'rgba(167,139,250,0.06)',
+    borderColor: 'rgba(167,139,250,0.2)',
+    iconBg:      'rgba(167,139,250,0.12)',
+    iconColor:   '#A78BFA',
+    btnColor:    '#8B5CF6',
+    benefits:    ['Extensor isolation', 'Dorsal strength', 'Finger independence'],
   },
 ];
 
-/** Map for O(1) lookup by exercise id */
 export const EXERCISE_MAP = Object.fromEntries(EXERCISES.map(e => [e.id, e]));

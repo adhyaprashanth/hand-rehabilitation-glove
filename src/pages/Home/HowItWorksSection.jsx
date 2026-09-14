@@ -1,35 +1,31 @@
 /**
- * pages/Home/HowItWorksSection.jsx
- *
- * Section 8 — How the Glove Works.
- * Shows the animated DataFlow pipeline diagram.
+ * pages/Home/HowItWorksSection.jsx — MotionPulse dark theme
  */
 
+import { motion } from 'framer-motion';
 import DataFlow from '../../components/flow/DataFlow';
 import SectionTitle from '../../components/common/SectionTitle';
-import { motion } from 'framer-motion';
 
 export default function HowItWorksSection() {
   return (
-    <section id="how-it-works" className="py-20 bg-white">
+    <section id="how-it-works" className="py-24" style={{ background: '#08111F' }}>
       <div className="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8">
         <SectionTitle
-          emoji="🌸"
-          title="How It Works"
-          subtitle="From finger movement to real-time feedback — in 5 simple steps."
+          title="HOW IT WORKS"
+          subtitle="From finger movement to real-time feedback — five steps, millisecond latency."
         />
 
         <DataFlow />
 
-        {/* Bottom tagline */}
         <motion.p
           initial={{ opacity: 0 }}
           whileInView={{ opacity: 1 }}
           viewport={{ once: true }}
           transition={{ delay: 0.6 }}
-          className="text-center text-sm text-gray-400 mt-8"
+          className="text-center text-xs mt-8 label-mono"
+          style={{ color: '#7090B0' }}
         >
-          The entire pipeline runs in real time — from the glove to this screen in milliseconds. ✨
+          ENTIRE PIPELINE RUNS IN REAL TIME — GLOVE TO SCREEN IN MILLISECONDS
         </motion.p>
       </div>
     </section>

@@ -1,67 +1,76 @@
 /**
- * components/sensors/SensorGraph.jsx
+ * components/sensors/SensorGraph.jsx — MotionPulse dark theme
  *
- * Live sensor activity graph using Recharts.
- * Shows sensor readings over time for a selected finger.
- *
- * Features:
- *   - Finger selector (Thumb, Index, Middle, Ring, Little)
- *   - Smooth animated line chart
- *   - Live updating data from the central data layer
+ * Dark chart with subtle grid lines, electric accent on selected finger,
+ * technical finger selector buttons. All data logic preserved.
  */
 
 import { useState } from 'react';
 import {
-  LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
-  ReferenceLine,
+  LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip,
+  ResponsiveContainer, ReferenceLine,
 } from 'recharts';
 import { motion } from 'framer-motion';
 import { FINGERS, FINGER_CHART_COLOR } from '../../constants/fingers';
 
-const CUSTOM_TOOLTIP = ({ active, payload, label }) => {
+const DarkTooltip = ({ active, payload, label }) => {
   if (!active || !payload?.length) return null;
   return (
-    <div className="bg-white/95 backdrop-blur-sm rounded-2xl px-3 py-2 shadow-soft border border-gray-100 text-xs">
-      <p className="text-gray-400">{label}</p>
-      <p className="font-semibold text-purple-600">{payload[0]?.value}% bending</p>
+    <div style={{
+      background: '#152440',
+      border: '1px solid #26354A',
+      borderRadius: '0.5rem',
+      padding: '0.5rem 0.75rem',
+      boxShadow: '0 4px 16px rgba(0,0,0,0.5)',
+    }}>
+      <p style={{ color: '#7090B0', fontSize: '0.7rem', fontFamily: 'monospace' }}>{label}</p>
+      <p style={{ color: '#60A5FA', fontSize: '0.75rem', fontWeight: 600 }}>
+        {payload[0]?.value}% bend
+      </p>
     </div>
   );
 };
 
-/**
- * @param {{ history: Object }} props
- * history is a map of fingerId → [{ time, value }]
- */
 export default function SensorGraph({ history = {} }) {
   const [selectedFinger, setSelectedFinger] = useState('thumb');
 
-  const data = history[selectedFinger] || [];
-  const chartColor = FINGER_CHART_COLOR[selectedFinger] || '#93C5FD';
+  const data       = history[selectedFinger] || [];
+  const chartColor = FINGER_CHART_COLOR[selectedFinger] || '#3B82F6';
 
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true }}
-      className="rounded-3xl bg-white border border-gray-100 shadow-soft p-6 flex flex-col gap-5"
+      className="flex flex-col gap-5 p-6"
+      style={{
+        background: '#0F1E30',
+        border: '1px solid #26354A',
+        borderRadius: '1rem',
+        boxShadow: '0 2px 12px rgba(0,0,0,0.4)',
+      }}
     >
-      {/* Finger selector */}
-      <div className="flex flex-wrap gap-2">
+      {/* Finger selector — compact technical tabs */}
+      <div className="flex flex-wrap gap-1.5">
         {FINGERS.map(f => {
           const isSelected = f.id === selectedFinger;
+          const color      = FINGER_CHART_COLOR[f.id];
           return (
             <button
               key={f.id}
               onClick={() => setSelectedFinger(f.id)}
-              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold transition-all duration-200 ${
-                isSelected
-                  ? 'text-white shadow-md scale-105'
-                  : 'bg-gray-50 text-gray-500 hover:bg-gray-100'
-              }`}
-              style={isSelected ? { background: chartColor } : {}}
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-medium transition-all duration-200"
+              style={{
+                background:   isSelected ? color + '18' : 'rgba(26,40,68,0.5)',
+                border:       `1px solid ${isSelected ? color + '50' : '#2A3F58'}`,
+                color:        isSelected ? color : '#7090B0',
+                boxShadow:    isSelected ? `0 0 12px ${color}25` : 'none',
+              }}
             >
-              <span>{f.emoji}</span>
-              <span>{f.name}</span>
+              <span className="w-1.5 h-1.5 rounded-full" style={{ background: isSelected ? color : '#2A3F58' }} />
+              <span className="label-mono" style={{ fontSize: '0.62rem', letterSpacing: '0.06em' }}>
+                {f.name.toUpperCase()}
+              </span>
             </button>
           );
         })}
@@ -72,43 +81,49 @@ export default function SensorGraph({ history = {} }) {
         <ResponsiveContainer width="100%" height="100%">
           <LineChart data={data} margin={{ top: 4, right: 8, bottom: 0, left: -24 }}>
             <CartesianGrid
-              strokeDasharray="4 4"
-              stroke="#F3F4F6"
+              strokeDasharray="3 3"
+              stroke="#1E3048"
               vertical={false}
             />
             <XAxis
               dataKey="time"
-              tick={{ fontSize: 9, fill: '#D1D5DB' }}
+              tick={{ fontSize: 8, fill: '#7090B0', fontFamily: 'monospace' }}
               tickLine={false}
               axisLine={false}
               interval="preserveStartEnd"
             />
             <YAxis
               domain={[0, 100]}
-              tick={{ fontSize: 9, fill: '#D1D5DB' }}
+              tick={{ fontSize: 8, fill: '#7090B0', fontFamily: 'monospace' }}
               tickLine={false}
               axisLine={false}
               tickFormatter={v => `${v}%`}
             />
-            <Tooltip content={<CUSTOM_TOOLTIP />} />
-            <ReferenceLine y={50} stroke="#E5E7EB" strokeDasharray="3 3" />
+            <Tooltip content={<DarkTooltip />} />
+            <ReferenceLine
+              y={50}
+              stroke="#2A3F58"
+              strokeDasharray="4 4"
+              label={{ value: '50%', fill: '#7090B0', fontSize: 8, fontFamily: 'monospace' }}
+            />
             <Line
               type="monotoneX"
               dataKey="value"
               stroke={chartColor}
-              strokeWidth={2.5}
+              strokeWidth={2}
               dot={false}
               isAnimationActive={false}
+              style={{ filter: `drop-shadow(0 0 4px ${chartColor}60)` }}
             />
           </LineChart>
         </ResponsiveContainer>
       </div>
 
       {/* Legend */}
-      <div className="flex items-center gap-2 text-xs text-gray-400">
-        <div className="w-5 h-1 rounded-full" style={{ background: chartColor }} />
-        <span>
-          {FINGERS.find(f => f.id === selectedFinger)?.name} finger — bending % over time
+      <div className="flex items-center gap-2">
+        <div className="w-6 h-px rounded-full" style={{ background: chartColor }} />
+        <span className="label-mono" style={{ color: '#7090B0', fontSize: '0.6rem' }}>
+          {FINGERS.find(f => f.id === selectedFinger)?.name.toUpperCase()} SENSOR — BENDING % OVER TIME
         </span>
       </div>
     </motion.div>

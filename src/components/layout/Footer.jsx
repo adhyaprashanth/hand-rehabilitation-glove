@@ -1,36 +1,44 @@
 /**
- * components/layout/Footer.jsx
+ * components/layout/Footer.jsx — MotionPulse dark theme
  */
 
 import { motion } from 'framer-motion';
-import { Zap } from 'lucide-react';
+import { Activity, Radio } from 'lucide-react';
 
-export default function Footer({ isDemoMode }) {
+export default function Footer() {
   return (
-    <footer className="bg-gray-50 border-t border-gray-100 py-10">
-      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-4">
-        <div className="flex items-center gap-2.5">
-          <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-blue-400 to-purple-500 flex items-center justify-center">
-            <span className="text-sm">🧤</span>
+    <footer style={{ background: '#08111F', borderTop: '1px solid #1A2844' }}>
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8 flex flex-col sm:flex-row items-center justify-between gap-4">
+
+        {/* Brand */}
+        <div className="flex items-center gap-3">
+          <div className="w-8 h-8 rounded-lg flex items-center justify-center"
+            style={{ background: 'rgba(59,130,246,0.1)', border: '1px solid rgba(59,130,246,0.2)' }}>
+            <Activity className="w-4 h-4" style={{ color: '#3B82F6' }} />
           </div>
           <div>
-            <p className="font-display font-600 text-sm text-gray-700">Hand Rehabilitation Glove</p>
-            <p className="text-xs text-gray-400">College Project · Smart Wearable Prototype</p>
+            <p className="font-display font-600 text-sm text-white">MotionPulse</p>
+            <p className="label-mono" style={{ color: '#7090B0', fontSize: '0.58rem' }}>
+              HAND REHABILITATION GLOVE · COLLEGE PROJECT
+            </p>
           </div>
         </div>
 
-        <div className="flex items-center gap-4 text-xs text-gray-400">
-          {isDemoMode && (
-            <motion.div
-              animate={{ opacity: [0.6, 1, 0.6] }}
-              transition={{ duration: 2, repeat: Infinity }}
-              className="flex items-center gap-1.5"
-            >
-              <Zap className="w-3 h-3 text-purple-400" />
-              <span className="text-purple-500 font-medium">Demo Mode Active</span>
-            </motion.div>
-          )}
-          <span>5 Flex Sensors · ESP32 · Firebase</span>
+        {/* Right side */}
+        <div className="flex items-center gap-4">
+          <motion.div
+            className="flex items-center gap-1.5"
+            animate={{ opacity: [0.5, 1, 0.5] }}
+            transition={{ duration: 2.5, repeat: Infinity }}
+          >
+            <Radio className="w-3 h-3" style={{ color: '#34D399' }} />
+            <span className="label-mono" style={{ color: '#34D399', fontSize: '0.6rem', letterSpacing: '0.08em' }}>
+              DEMO MODE ACTIVE
+            </span>
+          </motion.div>
+          <span className="label-mono" style={{ color: '#2A3F58', fontSize: '0.6rem' }}>
+            5 SENSORS · ESP32 · FIREBASE
+          </span>
         </div>
       </div>
     </footer>

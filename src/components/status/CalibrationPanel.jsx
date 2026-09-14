@@ -1,26 +1,26 @@
 /**
- * components/status/CalibrationPanel.jsx
+ * components/status/CalibrationPanel.jsx — MotionPulse dark theme
  *
- * Simulated sensor calibration panel.
- * When "Calibrate Glove" is clicked, each sensor calibrates one by one
- * with a progress animation, ending in a success state.
+ * Dark calibration panel. Per-sensor rows with live progress.
+ * All calibration logic preserved exactly.
+ * Emoji removed from success state — replaced with technical "READY" indicator.
  */
 
 import { useState, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { CheckCircle2, Loader2, Settings2 } from 'lucide-react';
+import { CheckCircle2, Loader2, Settings2, Sliders } from 'lucide-react';
 import { FINGERS } from '../../constants/fingers';
+import { FINGER_CHART_COLOR } from '../../constants/fingers';
 
-const CALIBRATION_DELAY_PER_FINGER = 700; // ms
+const CALIBRATION_DELAY_PER_FINGER = 700;
 
 export default function CalibrationPanel() {
-  const [status, setStatus] = useState('idle'); // 'idle' | 'running' | 'done'
+  const [status, setStatus] = useState('idle');
   const [calibratedCount, setCalibratedCount] = useState(0);
 
   const startCalibration = useCallback(() => {
     setStatus('running');
     setCalibratedCount(0);
-
     FINGERS.forEach((_, i) => {
       setTimeout(() => {
         setCalibratedCount(i + 1);
@@ -31,117 +31,128 @@ export default function CalibrationPanel() {
     });
   }, []);
 
-  const reset = () => {
-    setStatus('idle');
-    setCalibratedCount(0);
-  };
+  const reset = () => { setStatus('idle'); setCalibratedCount(0); };
 
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true }}
-      className="rounded-3xl bg-white border border-gray-100 shadow-soft p-6 flex flex-col gap-5"
+      className="flex flex-col gap-5 p-6"
+      style={{
+        background: '#0F1E30',
+        border: '1px solid #26354A',
+        borderRadius: '1rem',
+        boxShadow: '0 2px 12px rgba(0,0,0,0.4)',
+      }}
     >
       {/* Header */}
       <div className="flex items-center justify-between">
-        <div className="flex items-center gap-2">
-          <div className="w-9 h-9 rounded-2xl bg-purple-50 flex items-center justify-center">
-            <Settings2 className="w-5 h-5 text-purple-500" />
+        <div className="flex items-center gap-3">
+          <div className="w-9 h-9 rounded-lg flex items-center justify-center"
+            style={{ background: 'rgba(59,130,246,0.1)', border: '1px solid rgba(59,130,246,0.2)' }}>
+            <Sliders className="w-4 h-4" style={{ color: '#60A5FA' }} />
           </div>
           <div>
-            <p className="font-display font-600 text-sm text-gray-800">Glove Calibration</p>
-            <p className="text-xs text-gray-400">Set sensor zero positions</p>
+            <p className="font-medium text-sm text-white">Sensor Calibration</p>
+            <p className="label-mono" style={{ color: '#7090B0', fontSize: '0.6rem' }}>SET ZERO POSITIONS</p>
           </div>
         </div>
-
         {status === 'done' && (
-          <button
-            onClick={reset}
-            className="text-xs text-gray-400 hover:text-purple-600 underline transition-colors"
+          <button onClick={reset}
+            className="label-mono text-xs transition-colors"
+            style={{ color: '#7090B0' }}
+            onMouseEnter={e => e.currentTarget.style.color = '#60A5FA'}
+            onMouseLeave={e => e.currentTarget.style.color = '#7090B0'}
           >
-            Reset
+            RESET
           </button>
         )}
       </div>
 
-      {/* Sensor list */}
-      <div className="space-y-2.5">
+      {/* Sensor rows */}
+      <div className="space-y-2">
         {FINGERS.map((finger, i) => {
-          const isDone = calibratedCount > i;
+          const isDone    = calibratedCount > i;
           const isCurrent = status === 'running' && calibratedCount === i;
+          const accent    = FINGER_CHART_COLOR[finger.id] || '#3B82F6';
 
           return (
             <motion.div
               key={finger.id}
-              initial={{ opacity: 0, x: -10 }}
+              initial={{ opacity: 0, x: -8 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ delay: i * 0.05 }}
-              className={`flex items-center gap-3 p-3 rounded-2xl transition-colors ${
-                isDone ? 'bg-green-50 border border-green-100' : 'bg-gray-50 border border-gray-100'
-              }`}
+              className="flex items-center gap-3 p-3 rounded-lg"
+              style={{
+                background: isDone ? accent + '0A' : '#152440',
+                border: `1px solid ${isDone ? accent + '30' : '#2A3F58'}`,
+                transition: 'all 0.3s',
+              }}
             >
               {/* Status icon */}
-              <div className="w-7 h-7 flex-shrink-0 flex items-center justify-center">
+              <div className="w-6 h-6 flex-shrink-0 flex items-center justify-center">
                 {isDone ? (
-                  <motion.div
-                    initial={{ scale: 0 }}
-                    animate={{ scale: 1 }}
-                    transition={{ type: 'spring', stiffness: 300 }}
-                  >
-                    <CheckCircle2 className="w-5 h-5 text-green-500" />
+                  <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }} transition={{ type: 'spring', stiffness: 300 }}>
+                    <CheckCircle2 className="w-4 h-4" style={{ color: accent }} />
                   </motion.div>
                 ) : isCurrent ? (
-                  <Loader2 className="w-5 h-5 text-purple-400 animate-spin" />
+                  <Loader2 className="w-4 h-4 animate-spin" style={{ color: accent }} />
                 ) : (
-                  <div className="w-4 h-4 rounded-full border-2 border-gray-200" />
+                  <div className="w-3.5 h-3.5 rounded-full border-2" style={{ borderColor: '#2A3F58' }} />
                 )}
               </div>
 
-              {/* Finger info */}
-              <span className="text-lg">{finger.emoji}</span>
-              <div className="flex-1">
-                <p className={`text-sm font-semibold ${isDone ? 'text-green-700' : 'text-gray-500'}`}>
+              {/* Label */}
+              <div className="flex-1 min-w-0">
+                <p className="text-sm font-medium" style={{ color: isDone ? '#E8F2FF' : '#95B2CC' }}>
                   {finger.name} Sensor
                 </p>
-                {isDone && (
-                  <p className="text-xs text-green-500">Calibrated ✓</p>
-                )}
-                {isCurrent && (
-                  <p className="text-xs text-purple-500 animate-pulse">Calibrating...</p>
-                )}
-                {!isDone && !isCurrent && (
-                  <p className="text-xs text-gray-300">Waiting</p>
-                )}
+                <p className="label-mono" style={{ fontSize: '0.58rem', color: isDone ? accent : '#7090B0' }}>
+                  {isDone ? 'CALIBRATED' : isCurrent ? 'CALIBRATING...' : 'WAITING'}
+                </p>
               </div>
 
-              {/* Progress bar for current */}
+              {/* Live progress bar */}
               {isCurrent && (
-                <div className="w-16 h-1.5 bg-purple-100 rounded-full overflow-hidden">
+                <div className="w-16 h-1 rounded-full overflow-hidden" style={{ background: '#152440' }}>
                   <motion.div
-                    className="h-full bg-purple-400 rounded-full"
+                    className="h-full rounded-full"
+                    style={{ background: accent }}
                     initial={{ width: '0%' }}
                     animate={{ width: '100%' }}
                     transition={{ duration: CALIBRATION_DELAY_PER_FINGER / 1000 * 0.85, ease: 'linear' }}
                   />
                 </div>
               )}
+
+              {/* Done indicator */}
+              {isDone && (
+                <span className="label-mono" style={{ color: accent, fontSize: '0.58rem' }}>✓</span>
+              )}
             </motion.div>
           );
         })}
       </div>
 
-      {/* Success state */}
+      {/* Success banner */}
       <AnimatePresence>
         {status === 'done' && (
           <motion.div
-            initial={{ opacity: 0, scale: 0.9 }}
+            initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
             exit={{ opacity: 0 }}
-            className="flex items-center justify-center gap-2 py-3 bg-green-50 border border-green-200 rounded-2xl"
+            className="flex items-center justify-center gap-3 py-3 rounded-lg"
+            style={{
+              background: 'rgba(52,211,153,0.1)',
+              border: '1px solid rgba(52,211,153,0.3)',
+              boxShadow: '0 0 16px rgba(52,211,153,0.1)',
+            }}
           >
-            <span className="text-xl">🎉</span>
-            <span className="font-display font-700 text-green-700">Glove Ready!</span>
+            <span className="w-2 h-2 rounded-full" style={{ background: '#34D399', boxShadow: '0 0 8px rgba(52,211,153,0.7)' }} />
+            <span className="font-display font-700 text-sm" style={{ color: '#34D399' }}>
+              GLOVE READY
+            </span>
           </motion.div>
         )}
       </AnimatePresence>
@@ -151,18 +162,25 @@ export default function CalibrationPanel() {
         <button
           onClick={startCalibration}
           disabled={status === 'running'}
-          className={`w-full py-3 rounded-2xl text-sm font-semibold transition-all duration-200 active:scale-95 ${
-            status === 'running'
-              ? 'bg-purple-200 text-purple-400 cursor-not-allowed'
-              : 'bg-gradient-to-r from-purple-500 to-blue-500 text-white hover:shadow-lg hover:scale-[1.02]'
-          }`}
+          className="w-full py-3 rounded-lg text-sm font-semibold transition-all duration-200"
+          style={{
+            background: status === 'running'
+              ? 'rgba(59,130,246,0.1)'
+              : '#3B82F6',
+            color: status === 'running' ? '#7090B0' : '#fff',
+            border: '1px solid rgba(59,130,246,0.3)',
+            cursor: status === 'running' ? 'not-allowed' : 'pointer',
+            boxShadow: status === 'running' ? 'none' : '0 0 16px rgba(59,130,246,0.3)',
+          }}
         >
           {status === 'running' ? (
             <span className="flex items-center justify-center gap-2">
               <Loader2 className="w-4 h-4 animate-spin" /> Calibrating...
             </span>
           ) : (
-            '⚙️ Calibrate Glove'
+            <span className="flex items-center justify-center gap-2">
+              <Settings2 className="w-4 h-4" /> Calibrate Glove
+            </span>
           )}
         </button>
       )}
