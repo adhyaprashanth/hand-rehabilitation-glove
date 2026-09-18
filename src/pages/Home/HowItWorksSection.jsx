@@ -1,5 +1,5 @@
 /**
- * pages/Home/HowItWorksSection.jsx — MotionPulse dark theme
+ * pages/Home/HowItWorksSection.jsx — DEXTER dark theme
  */
 
 import { motion } from 'framer-motion';

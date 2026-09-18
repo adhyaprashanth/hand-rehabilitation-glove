@@ -1,5 +1,5 @@
 /**
- * config/exercises.js — MotionPulse dark theme edition
+ * config/exercises.js — DEXTER dark theme edition
  *
  * Exercise definitions with dark theme color assignments.
  * All videoUrl placeholders preserved — edit these to add real YouTube links.
@@ -12,7 +12,7 @@ export const EXERCISES = [
     description: 'Gently curl all fingers into a fist, then slowly open. Targets all flexor tendons.',
     duration:    '30s',
     repsTarget:  12,
-    videoUrl:    'https://www.youtube.com/embed/dQw4w9WgXcQ', // TODO: Replace with real exercise video
+    videoUrl:    '/videos/5.mp4',
     accent:      '#3B82F6',
     bgColor:     'rgba(59,130,246,0.06)',
     borderColor: 'rgba(59,130,246,0.2)',
@@ -27,7 +27,7 @@ export const EXERCISES = [
     description: 'Spread fingers wide and extend them fully backward. Targets extensor muscles.',
     duration:    '30s',
     repsTarget:  12,
-    videoUrl:    'https://www.youtube.com/embed/dQw4w9WgXcQ',
+    videoUrl:    '/videos/4.mp4',
     accent:      '#22D3EE',
     bgColor:     'rgba(34,211,238,0.06)',
     borderColor: 'rgba(34,211,238,0.2)',
@@ -42,7 +42,7 @@ export const EXERCISES = [
     description: 'Bring thumb and index finger together in a precise pinch. Improves fine motor control.',
     duration:    '45s',
     repsTarget:  15,
-    videoUrl:    'https://www.youtube.com/embed/dQw4w9WgXcQ',
+    videoUrl:    '/videos/3.mp4',
     accent:      '#34D399',
     bgColor:     'rgba(52,211,153,0.06)',
     borderColor: 'rgba(52,211,153,0.2)',
@@ -57,7 +57,7 @@ export const EXERCISES = [
     description: 'Curl each finger independently, one at a time. Isolated tendon conditioning.',
     duration:    '60s',
     repsTarget:  10,
-    videoUrl:    'https://www.youtube.com/embed/dQw4w9WgXcQ',
+    videoUrl:    '/videos/2.mp4',
     accent:      '#FB7185',
     bgColor:     'rgba(251,113,133,0.06)',
     borderColor: 'rgba(251,113,133,0.2)',
@@ -72,7 +72,7 @@ export const EXERCISES = [
     description: 'Straighten each finger fully against resistance. Strengthens dorsal muscles.',
     duration:    '45s',
     repsTarget:  10,
-    videoUrl:    'https://www.youtube.com/embed/dQw4w9WgXcQ',
+    videoUrl:    '/videos/1.mp4',
     accent:      '#A78BFA',
     bgColor:     'rgba(167,139,250,0.06)',
     borderColor: 'rgba(167,139,250,0.2)',

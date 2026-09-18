@@ -1,5 +1,5 @@
 /**
- * components/sensors/FingerCard.jsx — MotionPulse dark theme
+ * components/sensors/FingerCard.jsx — DEXTER dark theme
  *
  * Dark navy card with per-finger accent color, technical mono labels,
  * animated progress bar, ADC readout. All logic preserved.

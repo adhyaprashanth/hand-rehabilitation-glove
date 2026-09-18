@@ -1,5 +1,5 @@
 /**
- * components/dashboard/RepCounter.jsx — MotionPulse dark theme
+ * components/dashboard/RepCounter.jsx — DEXTER dark theme
  *
  * Large rep counter on dark surface. Bounce + "+1 REP" flash preserved.
  * Orange replaced with coral accent. Progress dots → clean bar segments.

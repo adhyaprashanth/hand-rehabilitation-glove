@@ -1,5 +1,5 @@
 /**
- * components/flow/DataFlow.jsx — MotionPulse dark theme
+ * components/flow/DataFlow.jsx — DEXTER dark theme
  *
  * Dark vertical pipeline diagram. Each step uses a navy card with a
  * per-step accent color. Signal dots travel downward between nodes.

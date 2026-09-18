@@ -1,5 +1,5 @@
 /**
- * pages/Home/ExercisesSection.jsx — MotionPulse dark theme
+ * pages/Home/ExercisesSection.jsx — DEXTER dark theme
  */
 
 import { useState } from 'react';

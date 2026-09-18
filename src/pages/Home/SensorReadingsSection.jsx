@@ -1,5 +1,5 @@
 /**
- * pages/Home/SensorReadingsSection.jsx — MotionPulse dark theme
+ * pages/Home/SensorReadingsSection.jsx — DEXTER dark theme
  */
 
 import { motion } from 'framer-motion';

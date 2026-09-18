@@ -1,5 +1,5 @@
 /**
- * components/hand/HandVisualization.jsx — MotionPulse dark theme
+ * components/hand/HandVisualization.jsx — DEXTER dark theme
  *
  * Interactive SVG hand — dark navy palette, electric accents per finger,
  * sensor signal line pulses, sleek stroke-based design.

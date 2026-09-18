@@ -1,5 +1,5 @@
 /**
- * pages/Home/LiveHandSection.jsx — MotionPulse dark theme
+ * pages/Home/LiveHandSection.jsx — DEXTER dark theme
  */
 
 import HandVisualization from '../../components/hand/HandVisualization';

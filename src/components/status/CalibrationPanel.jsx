@@ -1,5 +1,5 @@
 /**
- * components/status/CalibrationPanel.jsx — MotionPulse dark theme
+ * components/status/CalibrationPanel.jsx — DEXTER dark theme
  *
  * Dark calibration panel. Per-sensor rows with live progress.
  * All calibration logic preserved exactly.

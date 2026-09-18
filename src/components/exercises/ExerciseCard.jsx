@@ -1,5 +1,5 @@
 /**
- * components/exercises/ExerciseCard.jsx — MotionPulse dark theme
+ * components/exercises/ExerciseCard.jsx — DEXTER dark theme
  *
  * Dark exercise card. Accent color, no pastel bg classes,
  * all exercise data now comes as hex values from config/exercises.js.

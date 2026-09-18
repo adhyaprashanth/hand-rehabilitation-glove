@@ -1,5 +1,5 @@
 /**
- * components/common/SectionTitle.jsx — MotionPulse dark theme
+ * components/common/SectionTitle.jsx — DEXTER dark theme
  *
  * Clean section heading with a compact technical label badge,
  * no emoji pills or pastel backgrounds.

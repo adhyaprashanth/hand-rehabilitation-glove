@@ -1,5 +1,5 @@
 /**
- * components/layout/Footer.jsx — MotionPulse dark theme
+ * components/layout/Footer.jsx — DEXTER dark theme
  */
 
 import { motion } from 'framer-motion';
@@ -17,7 +17,7 @@ export default function Footer() {
             <Activity className="w-4 h-4" style={{ color: '#3B82F6' }} />
           </div>
           <div>
-            <p className="font-display font-600 text-sm text-white">MotionPulse</p>
+            <p className="font-display font-600 text-sm text-white">DEXTER</p>
             <p className="label-mono" style={{ color: '#7090B0', fontSize: '0.58rem' }}>
               HAND REHABILITATION GLOVE · COLLEGE PROJECT
             </p>

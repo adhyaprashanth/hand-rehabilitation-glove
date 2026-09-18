@@ -1,5 +1,5 @@
 /**
- * components/status/SystemStatus.jsx — MotionPulse dark theme
+ * components/status/SystemStatus.jsx — DEXTER dark theme
  *
  * Dark status grid — technical dark panels with
  * icon + status dot + label.

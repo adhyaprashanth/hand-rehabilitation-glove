@@ -1,5 +1,5 @@
 /**
- * constants/fingers.js — MotionPulse dark theme edition
+ * constants/fingers.js — DEXTER dark theme edition
  *
  * Master definition of all five fingers with dark-theme color assignments.
  * All pastel colors replaced with the electric blue / cyan / coral palette.

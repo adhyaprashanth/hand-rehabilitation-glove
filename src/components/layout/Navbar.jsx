@@ -1,5 +1,5 @@
 /**
- * components/layout/Navbar.jsx — MotionPulse dark theme
+ * components/layout/Navbar.jsx — DEXTER dark theme
  *
  * Clean dark navbar with subtle border, professional status indicator,
  * and no bubbly pastel styling.
@@ -53,7 +53,7 @@ export default function Navbar() {
               <Activity className="w-4 h-4 text-electric-400" />
             </div>
             <div className="flex flex-col leading-tight">
-              <span className="font-display font-700 text-sm text-white tracking-wide">MotionPulse</span>
+              <span className="font-display font-700 text-sm text-white tracking-wide">DEXTER</span>
               <span className="label-mono" style={{ fontSize: '0.6rem', letterSpacing: '0.1em', color: '#3B82F6' }}>REHAB GLOVE</span>
             </div>
           </div>

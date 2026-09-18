@@ -1,5 +1,5 @@
 /**
- * pages/Home/GraphSection.jsx — MotionPulse dark theme
+ * pages/Home/GraphSection.jsx — DEXTER dark theme
  */
 
 import SensorGraph from '../../components/sensors/SensorGraph';

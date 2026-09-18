@@ -1,5 +1,5 @@
 /**
- * pages/Home/HeroSection.jsx — MotionPulse dark theme
+ * pages/Home/HeroSection.jsx — DEXTER dark theme
  *
  * Hero with animated dark background (grid + motion trails + scan line),
  * large SVG hand as centerpiece, clean tech typography, and electric CTA.

@@ -1,5 +1,5 @@
 /**
- * components/sensors/SensorGraph.jsx — MotionPulse dark theme
+ * components/sensors/SensorGraph.jsx — DEXTER dark theme
  *
  * Dark chart with subtle grid lines, electric accent on selected finger,
  * technical finger selector buttons. All data logic preserved.

@@ -4,7 +4,7 @@
 @tailwind components;
 @tailwind utilities;
 
-/* ─── MotionPulse Design Tokens — Dark Navy Theme ───────────── */
+/* ─── DEXTER Design Tokens — Dark Navy Theme ───────────── */
 :root {
   --bg-primary:       #08111F;
   --bg-secondary:     #0C1828;

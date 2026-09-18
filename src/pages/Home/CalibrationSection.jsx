@@ -1,5 +1,5 @@
 /**
- * pages/Home/CalibrationSection.jsx — MotionPulse dark theme
+ * pages/Home/CalibrationSection.jsx — DEXTER dark theme
  */
 
 import CalibrationPanel from '../../components/status/CalibrationPanel';

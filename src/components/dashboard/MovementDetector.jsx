@@ -1,5 +1,5 @@
 /**
- * components/dashboard/MovementDetector.jsx — MotionPulse dark theme
+ * components/dashboard/MovementDetector.jsx — DEXTER dark theme
  *
  * Dark card showing detected movement — clean, technical, no emojis as main UI.
  * Movement transitions preserved. Confidence bar uses electric blue → cyan gradient.
