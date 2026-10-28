@@ -39,7 +39,7 @@ export async function connectWebSerial(onRawLineReceived, onConnectionChange) {
     keepReading = true;
     onConnectionChange(true, 'ESP32 Connected');
 
-    // 3. Direct ReadableStream reader + TextDecoder (fail-safe without pipeTo locking)
+    // 3. Direct ReadableStream reader + TextDecoder
     const reader = port.readable.getReader();
     activeReader = reader;
     const decoder = new TextDecoder();
@@ -59,7 +59,11 @@ export async function connectWebSerial(onRawLineReceived, onConnectionChange) {
         for (const rawLine of lines) {
           const line = rawLine.trim();
           if (line.length > 0) {
-            onRawLineReceived(line);
+            try {
+              onRawLineReceived(line);
+            } catch (processingErr) {
+              console.error('[WebSerial Error processing line]:', processingErr);
+            }
           }
         }
       }
@@ -72,14 +76,14 @@ export async function connectWebSerial(onRawLineReceived, onConnectionChange) {
     }
   } catch (err) {
     if (err.name === 'NotFoundError') {
-      // User cancelled the prompt dialog - no alert needed
+      // User cancelled port picker dialog
       console.log('[WebSerial] Port selection cancelled by user.');
     } else {
-      console.error('[WebSerial Error]', err);
+      console.error('[WebSerial Port Open Error]', err);
       alert(
-        `⚠️ Failed to connect to ESP32: ${err.message || err}\n\n` +
+        `⚠️ Failed to open ESP32 Serial Port: ${err.message || err}\n\n` +
         `IMPORTANT: If the Arduino IDE Serial Monitor is open, please CLOSE IT completely! ` +
-        `Only one application can use the COM port at a time.`
+        `Windows only allows one app to connect to the COM port at a time.`
       );
     }
     await disconnectWebSerial(onConnectionChange);

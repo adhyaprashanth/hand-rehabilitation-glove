@@ -218,12 +218,9 @@ export function useSensorData() {
       const percent = calculateBendPercent(rawVal, cal.flat, cal.bent);
       const status = percent >= 60 ? 'Bending' : percent >= 20 ? 'Active' : 'Resting';
 
-      // History buffer
-      if (!historyRef.current[f.id]) historyRef.current[f.id] = [];
-      historyRef.current[f.id].push({ time: timeLabel, value: percent });
-      if (historyRef.current[f.id].length > HISTORY_MAX_POINTS) {
-        historyRef.current[f.id].shift();
-      }
+      // History buffer (safe immutable append)
+      const prevHistory = Array.isArray(historyRef.current[f.id]) ? [...historyRef.current[f.id]] : [];
+      historyRef.current[f.id] = [...prevHistory, { time: timeLabel, value: percent }].slice(-HISTORY_MAX_POINTS);
 
       return {
         ...f,
@@ -283,7 +280,7 @@ export function useSensorData() {
         wifiConnected: false,
         firebaseSynced: false,
       },
-      history: { ...historyRef.current },
+      history: Object.fromEntries(FINGERS.map(f => [f.id, [...(historyRef.current[f.id] || [])]])),
       isDemoMode: false,
     });
   }, []);

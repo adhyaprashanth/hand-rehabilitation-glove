@@ -148,11 +148,11 @@ export function getSimulatedState() {
     };
   });
 
-  // Record history for each finger
+  // Record history for each finger (safe immutable append)
   const timeLabel = new Date(now).toLocaleTimeString('en', { hour12: false });
   fingers.forEach(f => {
-    _history[f.id].push({ time: timeLabel, value: f.percent });
-    if (_history[f.id].length > HISTORY_MAX_POINTS) _history[f.id].shift();
+    const prev = Array.isArray(_history[f.id]) ? [..._history[f.id]] : [];
+    _history[f.id] = [...prev, { time: timeLabel, value: f.percent }].slice(-HISTORY_MAX_POINTS);
   });
 
   // Build movement data
@@ -180,7 +180,7 @@ export function getSimulatedState() {
     movement,
     repCount: _repCount,
     systemStatus,
-    history: _history,
+    history: Object.fromEntries(FINGERS.map(f => [f.id, [...(_history[f.id] || [])]])),
     isDemoMode: true,
   };
 }
