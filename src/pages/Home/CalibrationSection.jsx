@@ -19,7 +19,7 @@ export default function CalibrationSection({
   isSerialConnected,
 }) {
   return (
-    <section id="calibration" className="py-24" style={{ background: '#0C1828' }}>
+    <section id="calibration" className="py-20" style={{ background: 'var(--bg-secondary)' }}>
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col gap-14">
 
         {/* Calibration */}

@@ -171,8 +171,8 @@ export function getSimulatedState() {
   const systemStatus = {
     esp32Connected: true,
     sensorsActive: true,
-    wifiConnected: true,
-    firebaseSynced: true,
+    wifiConnected: false,
+    firebaseSynced: false,
   };
 
   return {
