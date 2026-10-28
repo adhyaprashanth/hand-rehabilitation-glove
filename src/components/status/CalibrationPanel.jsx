@@ -1,44 +1,33 @@
 /**
  * components/status/CalibrationPanel.jsx — DEXTER dark theme
  *
- * Dark calibration panel. Per-sensor rows with live progress.
- * All calibration logic preserved exactly.
- * Emoji removed from success state — replaced with technical "READY" indicator.
+ * Real, functional sensor calibration panel.
+ * Records live Flat (0% bend) and Bent (100% bend) ADC thresholds from the ESP32.
  */
 
-import { useState, useCallback } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import { CheckCircle2, Loader2, Settings2, Sliders } from 'lucide-react';
+import { motion } from 'framer-motion';
+import { CheckCircle2, Sliders, Hand, RotateCcw } from 'lucide-react';
 import { FINGERS } from '../../constants/fingers';
 import { FINGER_CHART_COLOR } from '../../constants/fingers';
 
-const CALIBRATION_DELAY_PER_FINGER = 700;
-
-export default function CalibrationPanel() {
-  const [status, setStatus] = useState('idle');
-  const [calibratedCount, setCalibratedCount] = useState(0);
-
-  const startCalibration = useCallback(() => {
-    setStatus('running');
-    setCalibratedCount(0);
-    FINGERS.forEach((_, i) => {
-      setTimeout(() => {
-        setCalibratedCount(i + 1);
-        if (i === FINGERS.length - 1) {
-          setTimeout(() => setStatus('done'), 300);
-        }
-      }, CALIBRATION_DELAY_PER_FINGER * (i + 1));
-    });
-  }, []);
-
-  const reset = () => { setStatus('idle'); setCalibratedCount(0); };
+export default function CalibrationPanel({
+  fingers = [],
+  calibration = {},
+  calibratedFlat = false,
+  calibratedBent = false,
+  onCalibrateFlat,
+  onCalibrateBent,
+  onResetCalibration,
+  isSerialConnected = false,
+}) {
+  const isFullyCalibrated = calibratedFlat && calibratedBent;
 
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true }}
-      className="flex flex-col gap-5 p-6"
+      className="flex flex-col gap-6 p-6"
       style={{
         background: '#0F1E30',
         border: '1px solid #26354A',
@@ -49,140 +38,163 @@ export default function CalibrationPanel() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
-          <div className="w-9 h-9 rounded-lg flex items-center justify-center"
-            style={{ background: 'rgba(59,130,246,0.1)', border: '1px solid rgba(59,130,246,0.2)' }}>
+          <div
+            className="w-9 h-9 rounded-lg flex items-center justify-center"
+            style={{ background: 'rgba(59,130,246,0.1)', border: '1px solid rgba(59,130,246,0.2)' }}
+          >
             <Sliders className="w-4 h-4" style={{ color: '#60A5FA' }} />
           </div>
           <div>
-            <p className="font-medium text-sm text-white">Sensor Calibration</p>
-            <p className="label-mono" style={{ color: '#7090B0', fontSize: '0.6rem' }}>SET ZERO POSITIONS</p>
+            <p className="font-medium text-sm text-white">Interactive Glove Calibration</p>
+            <p className="label-mono" style={{ color: '#7090B0', fontSize: '0.6rem' }}>
+              CALIBRATE PHYSICAL SENSORS FOR ACCURATE BEND %
+            </p>
           </div>
         </div>
-        {status === 'done' && (
-          <button onClick={reset}
-            className="label-mono text-xs transition-colors"
-            style={{ color: '#7090B0' }}
-            onMouseEnter={e => e.currentTarget.style.color = '#60A5FA'}
-            onMouseLeave={e => e.currentTarget.style.color = '#7090B0'}
-          >
-            RESET
-          </button>
-        )}
+
+        <button
+          onClick={onResetCalibration}
+          className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs transition-colors"
+          style={{ background: 'rgba(42,63,88,0.4)', color: '#95B2CC', border: '1px solid #2A3F58' }}
+          title="Reset to default thresholds"
+        >
+          <RotateCcw className="w-3.5 h-3.5" />
+          <span className="label-mono">RESET</span>
+        </button>
       </div>
 
-      {/* Sensor rows */}
+      {/* 2-Step Calibration Action Buttons */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        {/* Step 1: Flat */}
+        <button
+          onClick={onCalibrateFlat}
+          className="flex flex-col items-center justify-center gap-2 p-4 rounded-xl transition-all duration-200"
+          style={{
+            background: calibratedFlat
+              ? 'rgba(16,185,129,0.15)'
+              : 'rgba(59,130,246,0.1)',
+            border: calibratedFlat
+              ? '1px solid rgba(52,211,153,0.5)'
+              : '1px solid rgba(59,130,246,0.3)',
+            boxShadow: calibratedFlat ? '0 0 16px rgba(52,211,153,0.15)' : 'none',
+          }}
+        >
+          <div className="flex items-center gap-2">
+            <span className="text-xl">🖐</span>
+            <span className="font-display font-600 text-sm text-white">
+              Step 1: Set Flat (0%)
+            </span>
+            {calibratedFlat && <CheckCircle2 className="w-4 h-4 text-emerald-400" />}
+          </div>
+          <span className="text-xs text-slate-400 text-center">
+            Keep all fingers straight and relaxed, then click here.
+          </span>
+        </button>
+
+        {/* Step 2: Bent */}
+        <button
+          onClick={onCalibrateBent}
+          className="flex flex-col items-center justify-center gap-2 p-4 rounded-xl transition-all duration-200"
+          style={{
+            background: calibratedBent
+              ? 'rgba(16,185,129,0.15)'
+              : 'rgba(244,63,94,0.1)',
+            border: calibratedBent
+              ? '1px solid rgba(52,211,153,0.5)'
+              : '1px solid rgba(244,63,94,0.3)',
+            boxShadow: calibratedBent ? '0 0 16px rgba(52,211,153,0.15)' : 'none',
+          }}
+        >
+          <div className="flex items-center gap-2">
+            <span className="text-xl">✊</span>
+            <span className="font-display font-600 text-sm text-white">
+              Step 2: Set Full Bend (100%)
+            </span>
+            {calibratedBent && <CheckCircle2 className="w-4 h-4 text-emerald-400" />}
+          </div>
+          <span className="text-xs text-slate-400 text-center">
+            Make a tight fist / curl fingers completely, then click here.
+          </span>
+        </button>
+      </div>
+
+      {/* Sensor rows with Live Raw ADC & Calibrated Targets */}
       <div className="space-y-2">
-        {FINGERS.map((finger, i) => {
-          const isDone    = calibratedCount > i;
-          const isCurrent = status === 'running' && calibratedCount === i;
-          const accent    = FINGER_CHART_COLOR[finger.id] || '#3B82F6';
+        {FINGERS.map((finger) => {
+          const liveData = fingers.find((f) => f.id === finger.id) || {};
+          const liveRaw = liveData.value ?? 1000;
+          const livePct = liveData.percent ?? 0;
+          const cal = calibration[finger.id] || { flat: 1000, bent: 500 };
+          const accent = FINGER_CHART_COLOR[finger.id] || '#3B82F6';
 
           return (
-            <motion.div
+            <div
               key={finger.id}
-              initial={{ opacity: 0, x: -8 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ delay: i * 0.05 }}
-              className="flex items-center gap-3 p-3 rounded-lg"
+              className="flex items-center justify-between gap-4 p-3 rounded-lg"
               style={{
-                background: isDone ? accent + '0A' : '#152440',
-                border: `1px solid ${isDone ? accent + '30' : '#2A3F58'}`,
-                transition: 'all 0.3s',
+                background: '#152440',
+                border: '1px solid #2A3F58',
               }}
             >
-              {/* Status icon */}
-              <div className="w-6 h-6 flex-shrink-0 flex items-center justify-center">
-                {isDone ? (
-                  <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }} transition={{ type: 'spring', stiffness: 300 }}>
-                    <CheckCircle2 className="w-4 h-4" style={{ color: accent }} />
-                  </motion.div>
-                ) : isCurrent ? (
-                  <Loader2 className="w-4 h-4 animate-spin" style={{ color: accent }} />
-                ) : (
-                  <div className="w-3.5 h-3.5 rounded-full border-2" style={{ borderColor: '#2A3F58' }} />
-                )}
-              </div>
-
-              {/* Label */}
-              <div className="flex-1 min-w-0">
-                <p className="text-sm font-medium" style={{ color: isDone ? '#E8F2FF' : '#95B2CC' }}>
-                  {finger.name} Sensor
-                </p>
-                <p className="label-mono" style={{ fontSize: '0.58rem', color: isDone ? accent : '#7090B0' }}>
-                  {isDone ? 'CALIBRATED' : isCurrent ? 'CALIBRATING...' : 'WAITING'}
-                </p>
-              </div>
-
-              {/* Live progress bar */}
-              {isCurrent && (
-                <div className="w-16 h-1 rounded-full overflow-hidden" style={{ background: '#152440' }}>
-                  <motion.div
-                    className="h-full rounded-full"
-                    style={{ background: accent }}
-                    initial={{ width: '0%' }}
-                    animate={{ width: '100%' }}
-                    transition={{ duration: CALIBRATION_DELAY_PER_FINGER / 1000 * 0.85, ease: 'linear' }}
-                  />
+              <div className="flex items-center gap-3">
+                <span className="w-2.5 h-2.5 rounded-full" style={{ background: accent }} />
+                <div>
+                  <p className="text-sm font-medium text-white">{finger.name}</p>
+                  <p className="label-mono" style={{ fontSize: '0.6rem', color: '#7090B0' }}>
+                    PIN {finger.sensorPin}
+                  </p>
                 </div>
-              )}
+              </div>
 
-              {/* Done indicator */}
-              {isDone && (
-                <span className="label-mono" style={{ color: accent, fontSize: '0.58rem' }}>✓</span>
-              )}
-            </motion.div>
+              {/* Readouts */}
+              <div className="flex items-center gap-6 text-right">
+                <div>
+                  <div className="font-mono text-xs text-cyan-300 font-bold">{liveRaw}</div>
+                  <div className="label-mono" style={{ fontSize: '0.55rem', color: '#7090B0' }}>
+                    LIVE RAW
+                  </div>
+                </div>
+
+                <div className="hidden sm:block">
+                  <div className="font-mono text-xs text-slate-300">
+                    {cal.flat} ➔ {cal.bent}
+                  </div>
+                  <div className="label-mono" style={{ fontSize: '0.55rem', color: '#7090B0' }}>
+                    CAL (0% ➔ 100%)
+                  </div>
+                </div>
+
+                <div className="min-w-[4rem]">
+                  <div
+                    className="font-display font-700 text-base"
+                    style={{ color: livePct >= 60 ? '#FB7185' : livePct >= 20 ? '#34D399' : '#95B2CC' }}
+                  >
+                    {livePct}%
+                  </div>
+                  <div className="label-mono" style={{ fontSize: '0.55rem', color: '#7090B0' }}>
+                    CALCULATED
+                  </div>
+                </div>
+              </div>
+            </div>
           );
         })}
       </div>
 
       {/* Success banner */}
-      <AnimatePresence>
-        {status === 'done' && (
-          <motion.div
-            initial={{ opacity: 0, scale: 0.95 }}
-            animate={{ opacity: 1, scale: 1 }}
-            exit={{ opacity: 0 }}
-            className="flex items-center justify-center gap-3 py-3 rounded-lg"
-            style={{
-              background: 'rgba(52,211,153,0.1)',
-              border: '1px solid rgba(52,211,153,0.3)',
-              boxShadow: '0 0 16px rgba(52,211,153,0.1)',
-            }}
-          >
-            <span className="w-2 h-2 rounded-full" style={{ background: '#34D399', boxShadow: '0 0 8px rgba(52,211,153,0.7)' }} />
-            <span className="font-display font-700 text-sm" style={{ color: '#34D399' }}>
-              GLOVE READY
-            </span>
-          </motion.div>
-        )}
-      </AnimatePresence>
-
-      {/* Calibrate button */}
-      {status !== 'done' && (
-        <button
-          onClick={startCalibration}
-          disabled={status === 'running'}
-          className="w-full py-3 rounded-lg text-sm font-semibold transition-all duration-200"
+      {isFullyCalibrated && (
+        <div
+          className="flex items-center justify-center gap-2 py-3 rounded-lg"
           style={{
-            background: status === 'running'
-              ? 'rgba(59,130,246,0.1)'
-              : '#3B82F6',
-            color: status === 'running' ? '#7090B0' : '#fff',
-            border: '1px solid rgba(59,130,246,0.3)',
-            cursor: status === 'running' ? 'not-allowed' : 'pointer',
-            boxShadow: status === 'running' ? 'none' : '0 0 16px rgba(59,130,246,0.3)',
+            background: 'rgba(52,211,153,0.1)',
+            border: '1px solid rgba(52,211,153,0.4)',
           }}
         >
-          {status === 'running' ? (
-            <span className="flex items-center justify-center gap-2">
-              <Loader2 className="w-4 h-4 animate-spin" /> Calibrating...
-            </span>
-          ) : (
-            <span className="flex items-center justify-center gap-2">
-              <Settings2 className="w-4 h-4" /> Calibrate Glove
-            </span>
-          )}
-        </button>
+          <CheckCircle2 className="w-4 h-4 text-emerald-400" />
+          <span className="font-display font-600 text-xs text-emerald-300 tracking-wide">
+            CALIBRATION ACTIVE — GLOVE MAPPED TO 0% - 100% RANGE
+          </span>
+        </div>
       )}
     </motion.div>
   );

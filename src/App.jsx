@@ -7,6 +7,7 @@
  *   - useSensorData() is the single data source for all sensor state.
  *   - Supports USB WebSerial connection directly to ESP32 hardware!
  *   - When connected via USB, real hardware streams live to all UI sections.
+ *   - Supports in-app 2-step calibration (Set Flat, Set Bent).
  *   - When disconnected, seamlessly falls back to demo simulation.
  */
 
@@ -33,6 +34,13 @@ export default function App() {
     isDemoMode,
     isSerialConnected,
     isWebSerialSupported,
+    packetCount,
+    calibration,
+    calibratedFlat,
+    calibratedBent,
+    calibrateFlat,
+    calibrateBent,
+    resetCalibration,
     connectESP32,
     disconnectESP32,
     resetSession,
@@ -58,6 +66,11 @@ export default function App() {
         resetSession={resetSession}
         isSerialConnected={isSerialConnected}
         isWebSerialSupported={isWebSerialSupported}
+        packetCount={packetCount}
+        calibratedFlat={calibratedFlat}
+        calibratedBent={calibratedBent}
+        onCalibrateFlat={calibrateFlat}
+        onCalibrateBent={calibrateBent}
         onConnectESP32={connectESP32}
         onDisconnectESP32={disconnectESP32}
       />
@@ -75,7 +88,17 @@ export default function App() {
       <HowItWorksSection />
 
       {/* Calibration + system status */}
-      <CalibrationSection systemStatus={systemStatus} />
+      <CalibrationSection
+        systemStatus={systemStatus}
+        fingers={fingers}
+        calibration={calibration}
+        calibratedFlat={calibratedFlat}
+        calibratedBent={calibratedBent}
+        onCalibrateFlat={calibrateFlat}
+        onCalibrateBent={calibrateBent}
+        onResetCalibration={resetCalibration}
+        isSerialConnected={isSerialConnected}
+      />
 
       <Footer />
     </div>

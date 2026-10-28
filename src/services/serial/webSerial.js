@@ -19,10 +19,10 @@ export function isWebSerialSupported() {
 /**
  * Request user to pick the ESP32 COM port and start reading lines
  *
- * @param {function(Object): void} onDataReceived - Callback for parsed JSON from ESP32
+ * @param {function(string): void} onRawLineReceived - Callback for every received line
  * @param {function(boolean, string): void} onConnectionChange - Callback when connected/disconnected
  */
-export async function connectWebSerial(onDataReceived, onConnectionChange) {
+export async function connectWebSerial(onRawLineReceived, onConnectionChange) {
   if (!isWebSerialSupported()) {
     alert('Web Serial is not supported in this browser. Please use Google Chrome, Microsoft Edge, Brave, or Opera.');
     return false;
@@ -39,7 +39,10 @@ export async function connectWebSerial(onDataReceived, onConnectionChange) {
 
     // 2. Setup text decoder stream pipeline
     const textDecoder = new TextDecoderStream();
-    const readableStreamClosed = port.readable.pipeTo(textDecoder.writable);
+    port.readable.pipeTo(textDecoder.writable).catch((err) => {
+      console.warn('[WebSerial] Pipe closed:', err);
+    });
+
     const reader = textDecoder.readable.getReader();
     activeReader = reader;
 
@@ -53,19 +56,14 @@ export async function connectWebSerial(onDataReceived, onConnectionChange) {
       }
       if (value) {
         buffer += value;
-        const lines = buffer.split('\n');
+        const lines = buffer.split(/\r?\n/);
         // Keep the last partial segment in the buffer
-        buffer = lines.pop();
+        buffer = lines.pop() || '';
 
         for (const rawLine of lines) {
           const line = rawLine.trim();
-          if (line.startsWith('{') && line.endsWith('}')) {
-            try {
-              const parsed = JSON.parse(line);
-              onDataReceived(parsed);
-            } catch {
-              // Ignore partial/malformed JSON
-            }
+          if (line.length > 0) {
+            onRawLineReceived(line);
           }
         }
       }
@@ -95,7 +93,7 @@ export async function disconnectWebSerial(onConnectionChange) {
       activeReader = null;
     }
   } catch (e) {
-    console.warn('Error closing reader:', e);
+    console.warn('[WebSerial] Error closing reader:', e);
   }
 
   try {
@@ -104,7 +102,7 @@ export async function disconnectWebSerial(onConnectionChange) {
       activePort = null;
     }
   } catch (e) {
-    console.warn('Error closing port:', e);
+    console.warn('[WebSerial] Error closing port:', e);
   }
 
   if (onConnectionChange) {
