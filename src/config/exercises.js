@@ -1,8 +1,5 @@
 /**
- * config/exercises.js — DEXTER dark theme edition
- *
- * Exercise definitions with dark theme color assignments.
- * All videoUrl placeholders preserved — edit these to add real YouTube links.
+ * config/exercises.js — MotionPulse dark theme edition
  */
 
 export const EXERCISES = [

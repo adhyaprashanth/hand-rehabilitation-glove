@@ -5,14 +5,9 @@
  *
  * ARCHITECTURE:
  *   - useSensorData() is the single data source for all sensor state.
- *   - Data flows DOWN from here to all sections as props.
- *   - No section directly calls the simulator or Firebase — only this component does.
- *   - This keeps the data layer completely separate from the UI layer.
- *
- * TO CONNECT FIREBASE LATER:
- *   1. Set USE_FIREBASE = true in hooks/useSensorData.js
- *   2. Implement subscribeToSensorData() in services/firebase/index.js
- *   3. Nothing else in the UI needs to change.
+ *   - Supports USB WebSerial connection directly to ESP32 hardware!
+ *   - When connected via USB, real hardware streams live to all UI sections.
+ *   - When disconnected, seamlessly falls back to demo simulation.
  */
 
 import Navbar from './components/layout/Navbar';
@@ -36,12 +31,21 @@ export default function App() {
     systemStatus,
     history,
     isDemoMode,
+    isSerialConnected,
+    isWebSerialSupported,
+    connectESP32,
+    disconnectESP32,
     resetSession,
   } = useSensorData();
 
   return (
     <div className="min-h-screen" style={{ background: '#08111F' }}>
-      <Navbar />
+      <Navbar
+        isSerialConnected={isSerialConnected}
+        isWebSerialSupported={isWebSerialSupported}
+        onConnectESP32={connectESP32}
+        onDisconnectESP32={disconnectESP32}
+      />
 
       {/* Hero */}
       <HeroSection />
@@ -52,6 +56,10 @@ export default function App() {
         movement={movement}
         repCount={repCount}
         resetSession={resetSession}
+        isSerialConnected={isSerialConnected}
+        isWebSerialSupported={isWebSerialSupported}
+        onConnectESP32={connectESP32}
+        onDisconnectESP32={disconnectESP32}
       />
 
       {/* Individual finger sensor cards */}

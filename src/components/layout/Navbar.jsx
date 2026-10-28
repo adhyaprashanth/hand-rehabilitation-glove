@@ -2,23 +2,31 @@
  * components/layout/Navbar.jsx — DEXTER dark theme
  *
  * Clean dark navbar with subtle border, professional status indicator,
- * and no bubbly pastel styling.
+ * and ESP32 USB hardware connect button.
  */
 
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Menu, X, Activity, Radio } from 'lucide-react';
+import { Menu, X, Activity, Radio, Usb, Plug } from 'lucide-react';
 
 const NAV_LINKS = [
   { label: 'Home',          href: '#hero' },
   { label: 'Live Glove',    href: '#live-hand' },
+  { label: 'Sensor Cards',  href: '#sensor-readings' },
+  { label: 'Live Graph',    href: '#graph' },
   { label: 'Exercise Guide',href: '#exercises' },
   { label: 'How It Works',  href: '#how-it-works' },
 ];
 
-export default function Navbar() {
+export default function Navbar({
+  isSerialConnected = false,
+  isWebSerialSupported = true,
+  onConnectESP32,
+  onDisconnectESP32,
+}) {
   const [scrolled, setScrolled] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [connecting, setConnecting] = useState(false);
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 20);
@@ -30,6 +38,19 @@ export default function Navbar() {
     setMobileOpen(false);
     const el = document.querySelector(href);
     if (el) el.scrollIntoView({ behavior: 'smooth' });
+  };
+
+  const handleConnectToggle = async () => {
+    if (isSerialConnected) {
+      if (onDisconnectESP32) await onDisconnectESP32();
+    } else {
+      setConnecting(true);
+      try {
+        if (onConnectESP32) await onConnectESP32();
+      } finally {
+        setConnecting(false);
+      }
+    }
   };
 
   return (
@@ -64,7 +85,7 @@ export default function Navbar() {
               <button
                 key={link.href}
                 onClick={() => handleNavClick(link.href)}
-                className="px-4 py-2 text-sm font-medium rounded-lg transition-all duration-200"
+                className="px-3 py-1.5 text-xs font-medium rounded-lg transition-all duration-200"
                 style={{ color: '#95B2CC' }}
                 onMouseEnter={e => { e.currentTarget.style.color = '#E8F2FF'; e.currentTarget.style.background = 'rgba(42,63,88,0.4)'; }}
                 onMouseLeave={e => { e.currentTarget.style.color = '#95B2CC'; e.currentTarget.style.background = 'transparent'; }}
@@ -74,13 +95,62 @@ export default function Navbar() {
             ))}
           </div>
 
-          {/* Status + mobile toggle */}
+          {/* Status + Connect Button + mobile toggle */}
           <div className="flex items-center gap-3">
-            {/* Demo status — technical style */}
-            <div className="hidden sm:flex items-center gap-2 px-3 py-1.5 bg-emerald-500/10 border border-emerald-400/30 rounded-lg">
-              <span className="status-dot-active" style={{ width: 6, height: 6, borderRadius: '50%', background: '#34D399', boxShadow: '0 0 6px rgba(52,211,153,0.6)' }} />
-              <Radio className="w-3 h-3 text-emerald-400" />
-              <span className="label-mono text-emerald-400" style={{ fontSize: '0.65rem' }}>DEMO LIVE</span>
+
+            {/* ESP32 Connect / Disconnect Button */}
+            {isWebSerialSupported ? (
+              <button
+                onClick={handleConnectToggle}
+                disabled={connecting}
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-all duration-200 shadow-sm"
+                style={{
+                  background: isSerialConnected
+                    ? 'rgba(16,185,129,0.15)'
+                    : 'rgba(59,130,246,0.15)',
+                  border: isSerialConnected
+                    ? '1px solid rgba(52,211,153,0.5)'
+                    : '1px solid rgba(59,130,246,0.4)',
+                  color: isSerialConnected ? '#34D399' : '#60A5FA',
+                }}
+                title={isSerialConnected ? 'Click to disconnect ESP32' : 'Connect ESP32 via USB Serial'}
+              >
+                {isSerialConnected ? (
+                  <>
+                    <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+                    <Usb className="w-3.5 h-3.5" />
+                    <span className="label-mono">ESP32 LIVE (USB)</span>
+                  </>
+                ) : (
+                  <>
+                    <Plug className="w-3.5 h-3.5" />
+                    <span className="label-mono">{connecting ? 'CONNECTING...' : 'CONNECT ESP32'}</span>
+                  </>
+                )}
+              </button>
+            ) : null}
+
+            {/* Mode Indicator badge */}
+            <div
+              className="hidden sm:flex items-center gap-2 px-2.5 py-1.5 rounded-lg border text-xs"
+              style={{
+                background: isSerialConnected ? 'rgba(16,185,129,0.08)' : 'rgba(245,158,11,0.08)',
+                borderColor: isSerialConnected ? 'rgba(52,211,153,0.3)' : 'rgba(245,158,11,0.3)',
+              }}
+            >
+              <Radio
+                className="w-3 h-3"
+                style={{ color: isSerialConnected ? '#34D399' : '#FBBF24' }}
+              />
+              <span
+                className="label-mono"
+                style={{
+                  fontSize: '0.62rem',
+                  color: isSerialConnected ? '#34D399' : '#FBBF24',
+                }}
+              >
+                {isSerialConnected ? 'HARDWARE' : 'SIMULATION'}
+              </span>
             </div>
 
             {/* Mobile hamburger */}
@@ -108,25 +178,32 @@ export default function Navbar() {
             className="md:hidden backdrop-blur-md border-t overflow-hidden"
             style={{ background: 'rgba(8,17,31,0.98)', borderTopColor: 'rgba(42,63,88,0.5)' }}
           >
-            <div className="px-4 py-3 space-y-1">
+            <div className="px-4 py-4 space-y-2">
               {NAV_LINKS.map(link => (
                 <button
                   key={link.href}
                   onClick={() => handleNavClick(link.href)}
-                  className="block w-full text-left px-4 py-3 text-sm font-medium rounded-lg transition-colors"
+                  className="block w-full text-left px-3 py-2 text-sm rounded-lg"
                   style={{ color: '#95B2CC' }}
-                  onMouseEnter={e => { e.currentTarget.style.color = '#E8F2FF'; e.currentTarget.style.background = 'rgba(42,63,88,0.4)'; }}
-                  onMouseLeave={e => { e.currentTarget.style.color = '#95B2CC'; e.currentTarget.style.background = 'transparent'; }}
                 >
                   {link.label}
                 </button>
               ))}
-              <div className="pt-2 pb-1 px-4">
-                <div className="flex items-center gap-2">
-                  <span style={{ width: 6, height: 6, borderRadius: '50%', background: '#34D399', boxShadow: '0 0 6px rgba(52,211,153,0.6)' }} />
-                  <span className="label-mono text-emerald-400" style={{ fontSize: '0.65rem' }}>DEMO MODE ACTIVE</span>
-                </div>
-              </div>
+
+              {isWebSerialSupported && (
+                <button
+                  onClick={handleConnectToggle}
+                  className="w-full mt-3 flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg text-xs font-semibold"
+                  style={{
+                    background: isSerialConnected ? 'rgba(16,185,129,0.2)' : 'rgba(59,130,246,0.2)',
+                    color: isSerialConnected ? '#34D399' : '#60A5FA',
+                    border: `1px solid ${isSerialConnected ? '#34D399' : '#3B82F6'}`,
+                  }}
+                >
+                  <Usb className="w-4 h-4" />
+                  {isSerialConnected ? 'DISCONNECT ESP32' : 'CONNECT ESP32 (USB)'}
+                </button>
+              )}
             </div>
           </motion.div>
         )}
