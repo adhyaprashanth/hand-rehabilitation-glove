@@ -5,18 +5,18 @@
  *
  * Data entry point for ALL UI components.
  * Supports:
- *   1. Web Serial API (direct USB connection to ESP32 at 115200 baud)
- *   2. Per-Finger Individual Calibration (calibrate flat & bent one sensor at a time)
- *   3. Demo simulation mode (when ESP32 is not connected)
+ *   1. Wi-Fi & Firebase Realtime Database (Live wireless telemetry from ESP32)
+ *   2. Web Serial API (Direct USB connection to ESP32 at 115200 baud)
+ *   3. Per-Finger Individual Calibration (Calibrate flat & bent one sensor at a time)
+ *   4. Demo simulation mode (When hardware is not streaming)
  */
 
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { getSimulatedState, resetSimulator } from '../services/demoData/simulator';
-import { subscribeToSensorData } from '../services/firebase';
+import { subscribeToSensorData, isFirebaseConfigured } from '../services/firebase';
 import { connectWebSerial, disconnectWebSerial, isWebSerialSupported } from '../services/serial/webSerial';
 import { FINGERS } from '../constants/fingers';
 
-const USE_FIREBASE = false;
 const DEMO_UPDATE_INTERVAL_MS = 150;
 const HISTORY_MAX_POINTS = 50;
 
@@ -55,11 +55,13 @@ export function useSensorData() {
   const [sensorState, setSensorState] = useState(() => getSimulatedState());
   const [isConnected, setIsConnected] = useState(true);
   const [isSerialConnected, setIsSerialConnected] = useState(false);
+  const [isFirebaseConnected, setIsFirebaseConnected] = useState(false);
+  const [connectionMode, setConnectionMode] = useState('wifi'); // 'wifi' | 'usb' | 'demo'
   const [packetCount, setPacketCount] = useState(0);
 
   // Per-finger calibration limits
   const [calibration, setCalibration] = useState(loadStoredCalibration);
-  
+
   // Track which individual fingers have had flat & bent recorded
   const [calibratedStatus, setCalibratedStatus] = useState(() => {
     return Object.fromEntries(
@@ -123,7 +125,7 @@ export function useSensorData() {
     }));
   }, [saveCalibration]);
 
-  // ── Batch All-Finger Calibration (optional convenience) ───────────────────
+  // ── Batch All-Finger Calibration ───────────────────────────────────────────
   const calibrateAllFlat = useCallback(() => {
     const updated = { ...calibrationRef.current };
     FINGERS.forEach(f => {
@@ -159,55 +161,8 @@ export function useSensorData() {
     );
   }, [saveCalibration]);
 
-  // ── Parse incoming serial stream from ESP32 ────────────────────────────────
-  const handleRawSerialLine = useCallback((line) => {
-    setPacketCount(c => c + 1);
-    let parsedData = null;
-
-    // Strategy 1: JSON format
-    if (line.startsWith('{') && line.endsWith('}')) {
-      try {
-        parsedData = JSON.parse(line);
-      } catch {
-        // ignore malformed
-      }
-    }
-
-    if (parsedData) {
-      FINGERS.forEach(f => {
-        if (parsedData[f.id] !== undefined) {
-          if (typeof parsedData[f.id] === 'object') {
-            const raw = parsedData[f.id].raw ?? parsedData[f.id].val;
-            if (raw !== undefined) liveRawRef.current[f.id] = Number(raw);
-          } else {
-            liveRawRef.current[f.id] = Number(parsedData[f.id]);
-          }
-        }
-      });
-    } else {
-      // Strategy 2: Text matching regex
-      const thumbMatch  = line.match(/Thumb.*?Raw[:=]\s*(\d+)/i);
-      const indexMatch  = line.match(/Index.*?Raw[:=]\s*(\d+)/i);
-      const middleMatch = line.match(/Middle.*?Raw[:=]\s*(\d+)/i);
-      const ringMatch   = line.match(/Ring.*?Raw[:=]\s*(\d+)/i);
-      const littleMatch = line.match(/Little.*?Raw[:=]\s*(\d+)/i);
-
-      if (thumbMatch)  liveRawRef.current.thumb  = parseInt(thumbMatch[1], 10);
-      if (indexMatch)  liveRawRef.current.index  = parseInt(indexMatch[1], 10);
-      if (middleMatch) liveRawRef.current.middle = parseInt(middleMatch[1], 10);
-      if (ringMatch)   liveRawRef.current.ring   = parseInt(ringMatch[1], 10);
-      if (littleMatch) liveRawRef.current.little = parseInt(littleMatch[1], 10);
-
-      // Single sensor fallback
-      if (!thumbMatch && !indexMatch && !middleMatch && !ringMatch && !littleMatch) {
-        const singleMatch = line.match(/Raw[:=]\s*(\d+)/i);
-        if (singleMatch) {
-          liveRawRef.current.thumb = parseInt(singleMatch[1], 10);
-        }
-      }
-    }
-
-    // Build finger telemetry with per-finger calibrated percent
+  // ── Common Telemetry Processor (used by both Firebase Wi-Fi & USB Serial) ──
+  const applySensorTelemetry = useCallback((source = 'wifi') => {
     const now = Date.now();
     const timeLabel = new Date(now).toLocaleTimeString('en', { hour12: false });
     const currentCal = calibrationRef.current;
@@ -277,18 +232,93 @@ export function useSensorData() {
       systemStatus: {
         esp32Connected: true,
         sensorsActive: true,
-        wifiConnected: false,
-        firebaseSynced: false,
+        wifiConnected: source === 'wifi',
+        firebaseSynced: source === 'wifi',
       },
       history: Object.fromEntries(FINGERS.map(f => [f.id, [...(historyRef.current[f.id] || [])]])),
       isDemoMode: false,
     });
   }, []);
 
+  // ── 1. Firebase Realtime Database Data Receiver (Wi-Fi) ───────────────────
+  const handleFirebaseTelemetry = useCallback((data) => {
+    if (!data) return;
+    setPacketCount(c => c + 1);
+    setIsFirebaseConnected(true);
+
+    // Unpack nested or root structure (e.g. data.live, data.sensors, or data)
+    const payload = data.live || data.sensors || data;
+
+    FINGERS.forEach(f => {
+      const entry = payload[f.id];
+      if (entry !== undefined) {
+        if (typeof entry === 'object' && entry !== null) {
+          const raw = entry.raw ?? entry.val ?? entry.value ?? entry.pct;
+          if (raw !== undefined) liveRawRef.current[f.id] = Number(raw);
+        } else {
+          liveRawRef.current[f.id] = Number(entry);
+        }
+      }
+    });
+
+    applySensorTelemetry('wifi');
+  }, [applySensorTelemetry]);
+
+  // ── 2. WebSerial Raw Stream Receiver (USB Serial) ─────────────────────────
+  const handleRawSerialLine = useCallback((line) => {
+    setPacketCount(c => c + 1);
+    let parsedData = null;
+
+    if (line.startsWith('{') && line.endsWith('}')) {
+      try {
+        parsedData = JSON.parse(line);
+      } catch {
+        // ignore malformed
+      }
+    }
+
+    if (parsedData) {
+      FINGERS.forEach(f => {
+        if (parsedData[f.id] !== undefined) {
+          if (typeof parsedData[f.id] === 'object') {
+            const raw = parsedData[f.id].raw ?? parsedData[f.id].val;
+            if (raw !== undefined) liveRawRef.current[f.id] = Number(raw);
+          } else {
+            liveRawRef.current[f.id] = Number(parsedData[f.id]);
+          }
+        }
+      });
+    } else {
+      const thumbMatch  = line.match(/Thumb.*?Raw[:=]\s*(\d+)/i);
+      const indexMatch  = line.match(/Index.*?Raw[:=]\s*(\d+)/i);
+      const middleMatch = line.match(/Middle.*?Raw[:=]\s*(\d+)/i);
+      const ringMatch   = line.match(/Ring.*?Raw[:=]\s*(\d+)/i);
+      const littleMatch = line.match(/Little.*?Raw[:=]\s*(\d+)/i);
+
+      if (thumbMatch)  liveRawRef.current.thumb  = parseInt(thumbMatch[1], 10);
+      if (indexMatch)  liveRawRef.current.index  = parseInt(indexMatch[1], 10);
+      if (middleMatch) liveRawRef.current.middle = parseInt(middleMatch[1], 10);
+      if (ringMatch)   liveRawRef.current.ring   = parseInt(ringMatch[1], 10);
+      if (littleMatch) liveRawRef.current.little = parseInt(littleMatch[1], 10);
+
+      if (!thumbMatch && !indexMatch && !middleMatch && !ringMatch && !littleMatch) {
+        const singleMatch = line.match(/Raw[:=]\s*(\d+)/i);
+        if (singleMatch) {
+          liveRawRef.current.thumb = parseInt(singleMatch[1], 10);
+        }
+      }
+    }
+
+    applySensorTelemetry('serial');
+  }, [applySensorTelemetry]);
+
+  // ── Connect / Disconnect Handlers ──────────────────────────────────────────
   const connectESP32 = useCallback(async () => {
     return await connectWebSerial(handleRawSerialLine, (connected) => {
       setIsSerialConnected(connected);
-      if (!connected) {
+      if (connected) {
+        setConnectionMode('usb');
+      } else {
         setSensorState(getSimulatedState());
       }
     });
@@ -301,29 +331,41 @@ export function useSensorData() {
     });
   }, []);
 
+  // ── Listen to Firebase Realtime Database ───────────────────────────────────
   useEffect(() => {
-    if (USE_FIREBASE) {
-      setIsConnected(false);
-      const unsubscribe = subscribeToSensorData((data) => {
-        setSensorState({ ...data, isDemoMode: false });
-        setIsConnected(true);
+    let unsubscribe = null;
+    try {
+      unsubscribe = subscribeToSensorData(handleFirebaseTelemetry, (err) => {
+        console.warn('[Firebase] Stream status:', err?.message || err);
       });
-      return () => unsubscribe();
-    } else if (!isSerialConnected) {
-      // Simulation mode
-      setIsConnected(true);
+    } catch (e) {
+      console.warn('[Firebase] Subscribe error:', e);
+    }
+
+    return () => {
+      if (unsubscribe) unsubscribe();
+    };
+  }, [handleFirebaseTelemetry]);
+
+  // ── Fallback Simulator (Active when no hardware packet received) ───────────
+  useEffect(() => {
+    if (!isSerialConnected && !isFirebaseConnected) {
       intervalRef.current = setInterval(() => {
         setSensorState(getSimulatedState());
       }, DEMO_UPDATE_INTERVAL_MS);
 
       return () => clearInterval(intervalRef.current);
     }
-  }, [isSerialConnected]);
+  }, [isSerialConnected, isFirebaseConnected]);
 
   return {
     ...sensorState,
     isConnected,
     isSerialConnected,
+    isFirebaseConnected,
+    isFirebaseConfigured: isFirebaseConfigured(),
+    connectionMode,
+    setConnectionMode,
     isWebSerialSupported: isWebSerialSupported(),
     packetCount,
     calibration,

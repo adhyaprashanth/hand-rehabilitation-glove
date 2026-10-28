@@ -57,6 +57,10 @@ export default function App() {
     repCount,
     systemStatus,
     isSerialConnected,
+    isFirebaseConnected,
+    isFirebaseConfigured,
+    connectionMode,
+    setConnectionMode,
     isWebSerialSupported,
     packetCount,
     calibration,
@@ -114,6 +118,7 @@ export default function App() {
     >
       <Navbar
         isSerialConnected={isSerialConnected}
+        isFirebaseConnected={isFirebaseConnected}
         isWebSerialSupported={isWebSerialSupported}
         onConnectESP32={connectESP32}
         onDisconnectESP32={disconnectESP32}
@@ -131,6 +136,7 @@ export default function App() {
         repCount={repCount}
         resetSession={resetSession}
         isSerialConnected={isSerialConnected}
+        isFirebaseConnected={isFirebaseConnected}
         isWebSerialSupported={isWebSerialSupported}
         packetCount={packetCount}
         onConnectESP32={connectESP32}

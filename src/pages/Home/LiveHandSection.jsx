@@ -6,7 +6,7 @@ import HandVisualization from '../../components/hand/HandVisualization';
 import MovementDetector from '../../components/dashboard/MovementDetector';
 import RepCounter from '../../components/dashboard/RepCounter';
 import SectionTitle from '../../components/common/SectionTitle';
-import { Usb, Radio, Sliders } from 'lucide-react';
+import { Usb, Radio, Sliders, Wifi } from 'lucide-react';
 
 export default function LiveHandSection({
   fingers,
@@ -14,11 +14,13 @@ export default function LiveHandSection({
   repCount,
   resetSession,
   isSerialConnected = false,
+  isFirebaseConnected = false,
   isWebSerialSupported = true,
   packetCount = 0,
   onConnectESP32,
   onDisconnectESP32,
 }) {
+  const isOnline = isFirebaseConnected || isSerialConnected;
   const scrollToCalibration = () => {
     const el = document.querySelector('#calibration');
     if (el) el.scrollIntoView({ behavior: 'smooth' });
@@ -36,10 +38,10 @@ export default function LiveHandSection({
         <div
           className="mb-8 p-4 rounded-2xl flex flex-col md:flex-row items-center justify-between gap-4 border transition-all"
           style={{
-            background: isSerialConnected
+            background: isOnline
               ? 'rgba(16,185,129,0.08)'
               : 'rgba(59,130,246,0.06)',
-            borderColor: isSerialConnected
+            borderColor: isOnline
               ? 'rgba(52,211,153,0.4)'
               : 'var(--border-subtle)',
           }}
@@ -48,32 +50,46 @@ export default function LiveHandSection({
             <div
               className="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0"
               style={{
-                background: isSerialConnected ? 'rgba(16,185,129,0.15)' : 'rgba(59,130,246,0.12)',
-                border: `1px solid ${isSerialConnected ? 'rgba(52,211,153,0.4)' : 'rgba(59,130,246,0.3)'}`,
+                background: isOnline ? 'rgba(16,185,129,0.15)' : 'rgba(59,130,246,0.12)',
+                border: `1px solid ${isOnline ? 'rgba(52,211,153,0.4)' : 'rgba(59,130,246,0.3)'}`,
               }}
             >
-              <Usb className="w-5 h-5" style={{ color: isSerialConnected ? '#10B981' : '#3B82F6' }} />
+              {isFirebaseConnected ? (
+                <Wifi className="w-5 h-5 text-emerald-400" />
+              ) : (
+                <Usb className="w-5 h-5" style={{ color: isSerialConnected ? '#10B981' : '#3B82F6' }} />
+              )}
             </div>
             <div>
               <div className="flex items-center gap-2 flex-wrap">
                 <span className="font-display font-600 text-sm" style={{ color: 'var(--text-primary)' }}>
-                  {isSerialConnected ? 'ESP32 Glove Active' : 'Practice Simulation Mode'}
+                  {isFirebaseConnected
+                    ? 'ESP32 Wi-Fi Stream Active'
+                    : isSerialConnected
+                    ? 'ESP32 Glove Active (USB)'
+                    : 'Practice Simulation Mode'}
                 </span>
                 <span
                   className="px-2 py-0.5 rounded text-[10px] font-mono uppercase tracking-wider"
                   style={{
-                    background: isSerialConnected ? 'rgba(16,185,129,0.2)' : 'rgba(245,158,11,0.2)',
-                    color: isSerialConnected ? '#10B981' : '#F59E0B',
-                    border: `1px solid ${isSerialConnected ? 'rgba(52,211,153,0.4)' : 'rgba(245,158,11,0.4)'}`,
+                    background: isOnline ? 'rgba(16,185,129,0.2)' : 'rgba(245,158,11,0.2)',
+                    color: isOnline ? '#10B981' : '#F59E0B',
+                    border: `1px solid ${isOnline ? 'rgba(52,211,153,0.4)' : 'rgba(245,158,11,0.4)'}`,
                   }}
                 >
-                  {isSerialConnected ? `${packetCount} pkts rx` : 'Simulated'}
+                  {isFirebaseConnected
+                    ? `Wi-Fi · ${packetCount} pkts`
+                    : isSerialConnected
+                    ? `USB · ${packetCount} pkts`
+                    : 'Simulated'}
                 </span>
               </div>
               <p className="text-xs mt-0.5" style={{ color: 'var(--text-secondary)' }}>
-                {isSerialConnected
-                  ? 'Glove connected! Move your fingers to see anatomical response and track exercise repetitions.'
-                  : 'Plug your ESP32 into USB, close the Arduino Serial Monitor, and click Connect.'}
+                {isFirebaseConnected
+                  ? 'Glove connected wirelessly via Wi-Fi & Firebase Realtime Database! Move fingers to track therapy reps.'
+                  : isSerialConnected
+                  ? 'Glove connected via USB Serial! Move your fingers to see anatomical response and track exercise repetitions.'
+                  : 'Power on your ESP32 with Wi-Fi, or plug in via USB and click Connect.'}
               </p>
             </div>
           </div>

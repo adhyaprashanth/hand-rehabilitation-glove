@@ -7,7 +7,7 @@
 
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Menu, X, Activity, Radio, Usb, Plug, Sun, Moon } from 'lucide-react';
+import { Menu, X, Activity, Radio, Usb, Plug, Sun, Moon, Wifi } from 'lucide-react';
 
 const NAV_LINKS = [
   { label: 'Home',          href: '#hero' },
@@ -19,6 +19,7 @@ const NAV_LINKS = [
 
 export default function Navbar({
   isSerialConnected = false,
+  isFirebaseConnected = false,
   isWebSerialSupported = true,
   onConnectESP32,
   onDisconnectESP32,
@@ -115,6 +116,23 @@ export default function Navbar({
 
           {/* Controls: Connect Button + Light Theme Toggle + Mobile Menu */}
           <div className="flex items-center gap-2.5">
+
+            {/* Wi-Fi & Firebase Status Pill */}
+            {isFirebaseConnected && (
+              <div
+                className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold"
+                style={{
+                  background: 'rgba(52,211,153,0.15)',
+                  border: '1px solid rgba(52,211,153,0.5)',
+                  color: '#10B981',
+                }}
+                title="Receiving live stream over Wi-Fi & Firebase"
+              >
+                <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+                <Wifi className="w-3.5 h-3.5" />
+                <span className="label-mono">WI-FI LIVE</span>
+              </div>
+            )}
 
             {/* ESP32 Connect / Disconnect Button */}
             {isWebSerialSupported && (

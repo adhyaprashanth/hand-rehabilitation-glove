@@ -1,8 +1,8 @@
 /*
  * ============================================================================
- * 🧤 Hand Rehabilitation Glove - ESP32 Firmware
+ * 🧤 Hand Rehabilitation Glove - ESP32 Firmware with Wi-Fi & Firebase
  * File: esp32_glove.ino
- * Stage 3: 5-Finger Sensors with Real-Time Web Dashboard Integration
+ * Stage 4: 5-Finger Sensors + Real-Time Wi-Fi & Firebase Realtime Database
  * ============================================================================
  * 
  * Hardware Connections (Labels printed on your ESP32 board):
@@ -15,7 +15,35 @@
  *   Ring     | 33 (or D33) | ESP32 3.3V   | ESP32 Pin 33         | ESP32 GND
  *   Little   | VP          | ESP32 3.3V   | ESP32 Pin VP (36)    | ESP32 GND
  * ----------------------------------------------------------------------------
+ *
+ * ARDUINO IDE SETUP INSTRUCTIONS:
+ * 1. In Arduino IDE, go to: Sketch -> Include Library -> Manage Libraries...
+ * 2. Search for: "Firebase ESP Client" (by Mobizt)
+ * 3. Click "Install" (version 4.x or higher)
+ * 4. Replace WIFI_SSID, WIFI_PASSWORD, API_KEY, and DATABASE_URL below.
+ * ============================================================================
  */
+
+#include <WiFi.h>
+#include <Firebase_ESP_Client.h>
+
+// Provide the token generation process info.
+#include "addons/TokenHelper.h"
+// Provide the RTDB payload printing info and other helper functions.
+#include "addons/RTDBHelper.h"
+
+// ========================== WI-FI CONFIGURATION =============================
+// Enter your Wi-Fi name (SSID) and Password (e.g. your home router or phone hotspot)
+#define WIFI_SSID       "YOUR_WIFI_NAME"
+#define WIFI_PASSWORD   "YOUR_WIFI_PASSWORD"
+
+// ========================== FIREBASE CONFIGURATION ==========================
+// 1. In Firebase Console (console.firebase.google.com) -> Project Settings -> Web API Key
+#define API_KEY         "YOUR_FIREBASE_WEB_API_KEY"
+
+// 2. Realtime Database -> Data tab -> Copy URL (including https:// and trailing /)
+// Example: "https://hand-rehab-glove-default-rtdb.firebaseio.com/"
+#define DATABASE_URL    "https://YOUR_PROJECT_ID-default-rtdb.firebaseio.com/"
 
 // ========================== BOARD PIN DEFINITIONS ==========================
 #define PIN_THUMB   34   // Labeled '34' or 'D34'
@@ -25,24 +53,24 @@
 #define PIN_LITTLE  36   // Labeled 'VP' on your board
 
 // ========================== GLOVE CONFIGURATION ==========================
-#define HAND_SIDE "RIGHT"         // "RIGHT" or "LEFT" hand glove
+#define HAND_SIDE "RIGHT"
 #define NUM_FINGERS 5
-const int NUM_SAMPLES = 10;       // Samples for ADC noise filtering
+const int NUM_SAMPLES = 10;                     // Samples for ADC noise filtering
+const unsigned long SEND_INTERVAL_MS = 150;     // ~7 updates per second
 
 // Structure to store finger configuration and live telemetry
 struct FingerSensor {
-  const char* id;                 // e.g. "thumb", "index"
-  const char* name;               // e.g. "Thumb"
-  const char* label;              // Label printed on board: "34", "VP", etc.
-  int pin;                        // ESP32 ADC pin number
-  int rawFlat;                    // Raw ADC reading when straight (0% bend)
-  int rawBent;                    // Raw ADC reading when bent 90° (100% bend)
-  int currentRaw;                 // Live raw ADC
-  int bendPercent;                // Live 0 - 100%
+  const char* id;
+  const char* name;
+  const char* label;
+  int pin;
+  int rawFlat;
+  int rawBent;
+  int currentRaw;
+  int bendPercent;
 };
 
 // 5-Finger Sensor Array
-// Adjust rawFlat and rawBent per finger if needed (Default: Flat=1000, Bent=500)
 FingerSensor fingers[NUM_FINGERS] = {
   { "thumb",  "Thumb ", "34", PIN_THUMB,  1000, 500, 0, 0 },
   { "index",  "Index ", "35", PIN_INDEX,  1000, 500, 0, 0 },
@@ -50,6 +78,13 @@ FingerSensor fingers[NUM_FINGERS] = {
   { "ring",   "Ring  ", "33", PIN_RING,   1000, 500, 0, 0 },
   { "little", "Little", "VP", PIN_LITTLE, 1000, 500, 0, 0 }
 };
+
+// Firebase Data Objects
+FirebaseData fbdo;
+FirebaseAuth auth;
+FirebaseConfig config;
+bool signupOK = false;
+unsigned long lastSendTime = 0;
 
 /**
  * Reads ADC multiple times and returns the average to eliminate noise
@@ -69,11 +104,47 @@ void setup() {
 
   // Set ADC 12-bit resolution (0 - 4095)
   analogReadResolution(12);
-
-  // Set attenuation for full 0 - 3.3V range
   analogSetAttenuation(ADC_11db);
 
-  Serial.println("{\"status\":\"ESP32 Hand Glove Initialized\"}");
+  Serial.println("\n[INIT] ESP32 Hand Glove Initializing...");
+
+  // 1. Connect to Wi-Fi
+  WiFi.mode(WIFI_STA);
+  WiFi.setAutoReconnect(true);
+  WiFi.begin(WIFI_SSID, WIFI_PASSWORD);
+  Serial.print("[WiFi] Connecting to: ");
+  Serial.println(WIFI_SSID);
+
+  int wifiAttempts = 0;
+  while (WiFi.status() != WL_CONNECTED && wifiAttempts < 20) {
+    delay(500);
+    Serial.print(".");
+    wifiAttempts++;
+  }
+
+  if (WiFi.status() == WL_CONNECTED) {
+    Serial.println("\n[WiFi] Connected successfully!");
+    Serial.print("[WiFi] IP Address: ");
+    Serial.println(WiFi.localIP());
+
+    // 2. Initialize Firebase Client
+    config.api_key = API_KEY;
+    config.database_url = DATABASE_URL;
+
+    // Sign up anonymously
+    if (Firebase.signUp(&config, &auth, "", "")) {
+      Serial.println("[Firebase] Anonymous Authentication Successful");
+      signupOK = true;
+    } else {
+      Serial.printf("[Firebase] Sign-up failed: %s\n", config.signer.signupError.message.c_str());
+    }
+
+    config.token_status_callback = tokenStatusCallback;
+    Firebase.begin(&config, &auth);
+    Firebase.reconnectWiFi(true);
+  } else {
+    Serial.println("\n[WiFi] Could not connect. Continuing in USB Serial mode.");
+  }
 }
 
 void loop() {
@@ -86,7 +157,8 @@ void loop() {
     fingers[i].bendPercent = constrain(pct, 0, 100);
   }
 
-  // 2. Stream single-line JSON directly to Serial for the Web Dashboard & Serial Monitor
+  // 2. Dual Output A: Stream single-line JSON directly to USB Serial
+  // (Allows monitoring in Arduino Serial Monitor or direct USB connection)
   Serial.print("{\"thumb\":{\"raw\":");
   Serial.print(fingers[0].currentRaw);
   Serial.print(",\"pct\":");
@@ -113,5 +185,30 @@ void loop() {
   Serial.print(fingers[4].bendPercent);
   Serial.println("}}");
 
-  delay(150); // Refresh rate: ~7 updates per second (matches dashboard interval)
+  // 3. Dual Output B: Stream over Wi-Fi directly to Firebase Realtime Database
+  if (WiFi.status() == WL_CONNECTED && Firebase.ready() && signupOK) {
+    if (millis() - lastSendTime >= SEND_INTERVAL_MS) {
+      lastSendTime = millis();
+
+      FirebaseJson json;
+      json.set("thumb/raw",  fingers[0].currentRaw);
+      json.set("thumb/pct",  fingers[0].bendPercent);
+      json.set("index/raw",  fingers[1].currentRaw);
+      json.set("index/pct",  fingers[1].bendPercent);
+      json.set("middle/raw", fingers[2].currentRaw);
+      json.set("middle/pct", fingers[2].bendPercent);
+      json.set("ring/raw",   fingers[3].currentRaw);
+      json.set("ring/pct",   fingers[3].bendPercent);
+      json.set("little/raw", fingers[4].currentRaw);
+      json.set("little/pct", fingers[4].bendPercent);
+      json.set("timestamp",  (int)millis());
+
+      // Update /glove/live in Firebase Realtime Database
+      if (!Firebase.RTDB.updateNode(&fbdo, "/glove/live", &json)) {
+        Serial.printf("[Firebase] Update failed: %s\n", fbdo.errorReason().c_str());
+      }
+    }
+  }
+
+  delay(SEND_INTERVAL_MS);
 }
