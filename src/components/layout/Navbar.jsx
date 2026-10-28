@@ -94,7 +94,7 @@ export default function Navbar({
                 className="label-mono font-semibold"
                 style={{ fontSize: '0.58rem', letterSpacing: '0.1em', color: '#3B82F6' }}
               >
-                REHAB PORTAL
+                REHAB GLOVE
               </span>
             </div>
           </div>

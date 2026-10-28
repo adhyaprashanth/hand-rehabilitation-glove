@@ -1,17 +1,16 @@
 /**
- * pages/Home/HeroSection.jsx — Patient & Rehabilitation POV
+ * pages/Home/HeroSection.jsx — Original DEXTER Hero
+ *
+ * Restored exact original wording ("Move Better. Recover Smarter."),
+ * animated background trails, and SVG hand.
  */
 
 import { useEffect, useRef } from 'react';
 import { motion } from 'framer-motion';
-import { ChevronDown, Cpu, Zap, Activity, Target, Sliders } from 'lucide-react';
+import { ChevronDown, Cpu, Zap, Activity } from 'lucide-react';
 
-const scrollToExercises = () => {
-  document.querySelector('#exercises')?.scrollIntoView({ behavior: 'smooth' });
-};
-
-const scrollToCalibration = () => {
-  document.querySelector('#calibration')?.scrollIntoView({ behavior: 'smooth' });
+const scrollToDemo = () => {
+  document.querySelector('#live-hand')?.scrollIntoView({ behavior: 'smooth' });
 };
 
 /* ── Animated canvas background — motion trails ───────────────── */
@@ -73,15 +72,13 @@ function HeroCanvas() {
         const headIdx = (start + windowSize - 1) % len;
         ctx.beginPath();
         ctx.arc(trail.points[headIdx].x, trail.points[headIdx].y, 2.5, 0, Math.PI * 2);
-        ctx.fillStyle = trail.color + '0.8)';
+        ctx.fillStyle = trail.color + '0.7)';
         ctx.fill();
       });
 
       t++;
       animId = requestAnimationFrame(render);
     };
-
-    animId = requestAnimationFrame(render);
 
     const onResize = () => {
       w = canvas.offsetWidth;
@@ -90,7 +87,7 @@ function HeroCanvas() {
       canvas.height = h;
     };
     window.addEventListener('resize', onResize);
-
+    render();
     return () => {
       cancelAnimationFrame(animId);
       window.removeEventListener('resize', onResize);
@@ -100,27 +97,32 @@ function HeroCanvas() {
   return (
     <canvas
       ref={canvasRef}
-      className="absolute inset-0 w-full h-full pointer-events-none opacity-50"
+      className="absolute inset-0 w-full h-full pointer-events-none"
+      style={{ opacity: 0.7 }}
     />
   );
 }
 
-/* ── Centerpiece: Interactive Hand Model ──────────────────────── */
+/* ── Sleek SVG hand visualization for hero ────────────────────── */
 function HeroHand() {
   return (
     <motion.div
-      initial={{ opacity: 0, scale: 0.88 }}
+      initial={{ opacity: 0, scale: 0.9 }}
       animate={{ opacity: 1, scale: 1 }}
-      transition={{ duration: 0.8, ease: 'easeOut' }}
-      className="relative flex items-center justify-center p-6"
+      transition={{ delay: 0.3, duration: 0.7, ease: 'easeOut' }}
+      className="relative flex items-center justify-center"
     >
-      <div className="absolute inset-0 rounded-full blur-3xl pointer-events-none opacity-40 bg-blue-500/20" />
+      <div
+        className="absolute w-56 h-56 rounded-full blur-3xl pointer-events-none"
+        style={{ background: 'radial-gradient(circle, rgba(59,130,246,0.15) 0%, rgba(34,211,238,0.08) 60%, transparent 100%)' }}
+      />
 
       <motion.svg
-        viewBox="0 0 230 310"
+        viewBox="0 0 220 320"
         className="w-64 h-80 relative z-10"
-        animate={{ y: [0, -8, 0] }}
-        transition={{ duration: 4, repeat: Infinity, ease: 'easeInOut' }}
+        style={{ overflow: 'visible', filter: 'drop-shadow(0 0 20px rgba(59,130,246,0.2))' }}
+        animate={{ y: [0, -6, 0] }}
+        transition={{ duration: 5, repeat: Infinity, ease: 'easeInOut' }}
       >
         <ellipse cx="115" cy="235" rx="70" ry="65"
           fill="#0C1828" stroke="#2A3F58" strokeWidth="1.5" />
@@ -135,7 +137,8 @@ function HeroHand() {
           transition={{ duration: 4, repeat: Infinity, ease: 'easeInOut' }}
         >
           <rect x="42" y="188" width="30" height="58" rx="8"
-            fill="#0C1828" stroke="#3B82F6" strokeWidth="1.2" />
+            fill="#0C1828" stroke="#3B82F6" strokeWidth="1.2"
+            style={{ filter: 'drop-shadow(0 0 6px rgba(59,130,246,0.4))' }} />
           <circle cx="57" cy="191" r="13" fill="#0C1828" stroke="#3B82F6" strokeWidth="1.2" />
         </motion.g>
 
@@ -146,7 +149,8 @@ function HeroHand() {
           transition={{ duration: 3.8, repeat: Infinity, ease: 'easeInOut', delay: 0.2 }}
         >
           <rect x="76" y="118" width="26" height="88" rx="8"
-            fill="#0C1828" stroke="#22D3EE" strokeWidth="1.2" />
+            fill="#0C1828" stroke="#22D3EE" strokeWidth="1.2"
+            style={{ filter: 'drop-shadow(0 0 6px rgba(34,211,238,0.35))' }} />
           <circle cx="89" cy="122" r="12" fill="#0C1828" stroke="#22D3EE" strokeWidth="1.2" />
         </motion.g>
 
@@ -157,7 +161,8 @@ function HeroHand() {
           transition={{ duration: 4.2, repeat: Infinity, ease: 'easeInOut', delay: 0.5 }}
         >
           <rect x="103" y="105" width="26" height="98" rx="8"
-            fill="#0C1828" stroke="#34D399" strokeWidth="1.2" />
+            fill="#0C1828" stroke="#34D399" strokeWidth="1.2"
+            style={{ filter: 'drop-shadow(0 0 6px rgba(52,211,153,0.35))' }} />
           <circle cx="116" cy="109" r="12" fill="#0C1828" stroke="#34D399" strokeWidth="1.2" />
         </motion.g>
 
@@ -168,7 +173,8 @@ function HeroHand() {
           transition={{ duration: 3.6, repeat: Infinity, ease: 'easeInOut', delay: 0.3 }}
         >
           <rect x="130" y="112" width="26" height="92" rx="8"
-            fill="#0C1828" stroke="#FB7185" strokeWidth="1.2" />
+            fill="#0C1828" stroke="#FB7185" strokeWidth="1.2"
+            style={{ filter: 'drop-shadow(0 0 6px rgba(251,113,133,0.35))' }} />
           <circle cx="143" cy="116" r="12" fill="#0C1828" stroke="#FB7185" strokeWidth="1.2" />
         </motion.g>
 
@@ -179,7 +185,8 @@ function HeroHand() {
           transition={{ duration: 4.5, repeat: Infinity, ease: 'easeInOut', delay: 0.7 }}
         >
           <rect x="157" y="130" width="22" height="76" rx="7"
-            fill="#0C1828" stroke="#A78BFA" strokeWidth="1.2" />
+            fill="#0C1828" stroke="#A78BFA" strokeWidth="1.2"
+            style={{ filter: 'drop-shadow(0 0 6px rgba(167,139,250,0.35))' }} />
           <circle cx="168" cy="133" r="10" fill="#0C1828" stroke="#A78BFA" strokeWidth="1.2" />
         </motion.g>
 
@@ -193,52 +200,66 @@ function HeroHand() {
 }
 
 const FEATURE_TAGS = [
-  { icon: Activity, label: '5-Finger ROM Tracking' },
-  { icon: Target,   label: 'Guided Therapy Routines' },
-  { icon: Zap,      label: 'USB Plug & Play' },
-  { icon: Sliders,  label: 'Individual Calibration' },
+  { icon: Cpu,      label: '5 Flex Sensors' },
+  { icon: Zap,      label: 'ESP32 MCU' },
+  { icon: null,     label: 'Movement Detection' },
+  { icon: null,     label: 'Rep Counter' },
 ];
 
 export default function HeroSection() {
   return (
     <section
       id="hero"
-      className="relative min-h-[90vh] flex items-center justify-center overflow-hidden pt-20 pb-16"
+      className="relative min-h-screen flex items-center justify-center overflow-hidden pt-16"
       style={{ background: 'var(--bg-primary)' }}
     >
       <HeroCanvas />
       <div className="absolute inset-0 bg-tech-grid opacity-60 pointer-events-none" />
+      <div className="scan-line" />
 
       <div className="relative z-10 max-w-6xl mx-auto px-4 sm:px-6 w-full">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
 
-          {/* Left — patient text */}
-          <div className="flex flex-col gap-6">
+          {/* Left — Original content */}
+          <div className="flex flex-col gap-8">
+            {/* Status badge */}
             <motion.div
               initial={{ opacity: 0, x: -20 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ delay: 0.1 }}
               className="flex items-center gap-2.5"
             >
-              <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+              <span
+                style={{
+                  width: 7,
+                  height: 7,
+                  borderRadius: '50%',
+                  background: '#34D399',
+                  boxShadow: '0 0 8px rgba(52,211,153,0.7)',
+                  display: 'inline-block',
+                  animation: 'pulseGlow 2s ease-in-out infinite',
+                }}
+              />
               <span className="label-mono text-emerald-500 font-semibold" style={{ fontSize: '0.68rem', letterSpacing: '0.12em' }}>
-                PATIENT REHABILITATION PORTAL
+                GLOVE CONNECTED · REAL-TIME
               </span>
             </motion.div>
 
+            {/* Original Heading */}
             <motion.div
               initial={{ opacity: 0, y: 24 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.2, duration: 0.6 }}
-              className="flex flex-col gap-3"
+              className="flex flex-col gap-4"
             >
-              <h1 className="font-display font-800 text-4xl sm:text-6xl leading-[1.1] tracking-tight text-slate-900 dark:text-white">
-                Rebuild Hand Mobility.
+              <h1 className="font-display font-800 text-5xl sm:text-6xl leading-[1.1] tracking-tight text-slate-900 dark:text-[#E8F2FF]">
+                Move Better.
                 <br />
-                <span className="text-blue-500">Restore</span> Independence.
+                <span style={{ color: '#3B82F6' }}>Recover</span>{' '}
+                Smarter.
               </h1>
-              <p className="text-base text-slate-600 dark:text-slate-300 max-w-lg leading-relaxed">
-                A smart physical therapy companion designed to guide your hand recovery. Track each finger's range of motion, practice guided routines, and measure your daily progress.
+              <p className="text-base max-w-md leading-relaxed text-slate-600 dark:text-[#95B2CC]">
+                A smart rehabilitation glove that monitors every finger movement individually — detecting exercises, counting reps, and streaming live sensor data in real time.
               </p>
             </motion.div>
 
@@ -246,7 +267,7 @@ export default function HeroSection() {
             <motion.div
               initial={{ opacity: 0, y: 16 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.35 }}
+              transition={{ delay: 0.4 }}
               className="flex flex-wrap gap-2"
             >
               {FEATURE_TAGS.map(({ icon: Icon, label }) => (
@@ -259,38 +280,30 @@ export default function HeroSection() {
                     color: 'var(--text-secondary)',
                   }}
                 >
-                  <Icon className="w-3.5 h-3.5 text-blue-500" />
-                  <span>{label}</span>
+                  {Icon && <Icon className="w-3 h-3 text-blue-500" />}
+                  {label}
                 </div>
               ))}
             </motion.div>
 
-            {/* CTAs */}
+            {/* Original CTA button */}
             <motion.div
               initial={{ opacity: 0, y: 16 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.5 }}
-              className="flex items-center gap-3 pt-2 flex-wrap"
+              transition={{ delay: 0.55 }}
+              className="flex items-center gap-4"
             >
               <button
-                onClick={scrollToExercises}
-                className="px-6 py-3 rounded-xl text-sm font-semibold text-white shadow-lg shadow-blue-500/25 transition-all duration-200 active:scale-95 flex items-center gap-2"
+                onClick={scrollToDemo}
+                className="px-6 py-3 rounded-xl text-sm font-semibold text-white transition-all duration-200 active:scale-95 flex items-center gap-2 shadow-lg shadow-blue-500/25"
                 style={{ background: '#3B82F6' }}
               >
-                <span>Start Therapy Routines</span>
+                View Live Demo
                 <ChevronDown className="w-4 h-4" />
               </button>
-
-              <button
-                onClick={scrollToCalibration}
-                className="px-5 py-3 rounded-xl text-sm font-semibold border transition-all duration-200 text-slate-700 dark:text-slate-200 hover:bg-slate-200/50 dark:hover:bg-slate-800/50"
-                style={{
-                  background: 'var(--bg-card)',
-                  borderColor: 'var(--border-subtle)',
-                }}
-              >
-                Calibrate Sensors
-              </button>
+              <span className="label-mono text-slate-500 dark:text-[#7090B0]" style={{ fontSize: '0.65rem' }}>
+                5 sensors · real-time
+              </span>
             </motion.div>
           </div>
 
