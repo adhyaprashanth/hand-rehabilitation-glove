@@ -87,7 +87,7 @@ export default function Navbar({
               <Activity className="w-4 h-4 text-blue-500" />
             </div>
             <div className="flex flex-col leading-tight">
-              <span className="font-display font-700 text-sm tracking-wide text-slate-900 dark:text-white">
+              <span className="font-display font-700 text-sm tracking-wide" style={{ color: 'var(--text-primary)' }}>
                 DEXTER
               </span>
               <span
@@ -105,7 +105,8 @@ export default function Navbar({
               <button
                 key={link.href}
                 onClick={() => handleNavClick(link.href)}
-                className="px-3 py-1.5 text-xs font-medium rounded-lg transition-all duration-200 text-slate-600 dark:text-slate-300 hover:text-blue-500 dark:hover:text-blue-400 hover:bg-slate-200/50 dark:hover:bg-slate-800/50"
+                className="px-3 py-1.5 text-xs font-medium rounded-lg transition-all duration-200 hover:text-blue-500 hover:bg-slate-200/50 dark:hover:bg-slate-800/50"
+                style={{ color: 'var(--text-secondary)' }}
               >
                 {link.label}
               </button>
@@ -169,7 +170,8 @@ export default function Navbar({
             {/* Mobile hamburger */}
             <button
               onClick={() => setMobileOpen(v => !v)}
-              className="md:hidden p-2 rounded-lg transition-colors text-slate-500 hover:text-slate-900 dark:hover:text-white"
+              className="md:hidden p-2 rounded-lg transition-colors"
+              style={{ color: 'var(--text-primary)' }}
               aria-label="Toggle menu"
             >
               {mobileOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
@@ -196,7 +198,8 @@ export default function Navbar({
                 <button
                   key={link.href}
                   onClick={() => handleNavClick(link.href)}
-                  className="block w-full text-left px-3 py-2 text-sm rounded-lg text-slate-600 dark:text-slate-300"
+                  className="block w-full text-left px-3 py-2 text-sm rounded-lg"
+                  style={{ color: 'var(--text-primary)' }}
                 >
                   {link.label}
                 </button>

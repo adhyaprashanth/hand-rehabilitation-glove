@@ -75,11 +75,11 @@ export default function MovementDetector({ movement }) {
             className="flex flex-col items-center gap-1.5"
           >
             {emoji && <span className="text-3xl">{emoji}</span>}
-            <h3 className="font-display font-700 text-2xl text-center text-slate-900 dark:text-white">
+            <h3 className="font-display font-700 text-2xl text-center" style={{ color: 'var(--text-primary)' }}>
               {name}
             </h3>
             {description && (
-              <p className="text-xs text-center text-slate-500 dark:text-slate-400">
+              <p className="text-xs text-center" style={{ color: 'var(--text-secondary)' }}>
                 {description}
               </p>
             )}

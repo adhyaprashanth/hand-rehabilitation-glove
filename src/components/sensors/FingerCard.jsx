@@ -71,10 +71,10 @@ export default function FingerCard({ finger }) {
             style={{ background: accentColor, boxShadow: `0 0 8px ${accentColor}60` }}
           />
           <div>
-            <span className="label-mono text-slate-400" style={{ fontSize: '0.58rem' }}>
+            <span className="label-mono" style={{ fontSize: '0.58rem', color: 'var(--text-secondary)' }}>
               FINGER SENSOR
             </span>
-            <h4 className="font-display font-600 text-sm text-slate-900 dark:text-white">
+            <h4 className="font-display font-600 text-sm" style={{ color: 'var(--text-primary)' }}>
               {name}
             </h4>
           </div>
@@ -114,7 +114,7 @@ export default function FingerCard({ finger }) {
             {stageName}
           </span>
         </div>
-        <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
+        <p className="text-xs mt-1" style={{ color: 'var(--text-secondary)' }}>
           {stageDescription}
         </p>
       </div>

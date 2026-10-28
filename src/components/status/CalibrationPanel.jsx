@@ -43,10 +43,10 @@ export default function CalibrationPanel({
             <Sliders className="w-5 h-5 text-blue-500" />
           </div>
           <div>
-            <p className="font-display font-600 text-base text-slate-900 dark:text-white">
+            <p className="font-display font-600 text-base" style={{ color: 'var(--text-primary)' }}>
               Individual Sensor ROM Calibration
             </p>
-            <p className="label-mono text-xs text-slate-500 dark:text-slate-400 mt-0.5">
+            <p className="label-mono text-xs mt-0.5" style={{ color: 'var(--text-secondary)' }}>
               Calibrate each sensor individually to personalize your therapeutic range.
             </p>
           </div>
@@ -64,8 +64,8 @@ export default function CalibrationPanel({
           </button>
           <button
             onClick={onResetCalibration}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs border transition-colors text-slate-600 dark:text-slate-300"
-            style={{ background: 'var(--bg-card-elevated)', borderColor: 'var(--border-subtle)' }}
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs border transition-colors"
+            style={{ background: 'var(--bg-card-elevated)', borderColor: 'var(--border-subtle)', color: 'var(--text-secondary)' }}
           >
             <RotateCcw className="w-3.5 h-3.5" />
             <span className="label-mono">RESET</span>
@@ -84,7 +84,7 @@ export default function CalibrationPanel({
       >
         <Sparkles className="w-4 h-4 text-cyan-500 flex-shrink-0" />
         <span>
-          <strong>How to calibrate:</strong> Hold a sensor straight and click <strong className="text-slate-900 dark:text-white">"Set Flat"</strong>. Then curl that sensor and click <strong className="text-slate-900 dark:text-white">"Set Bent"</strong>.
+          <strong>How to calibrate:</strong> Hold a sensor straight and click <strong style={{ color: 'var(--text-primary)' }}>"Set Flat"</strong>. Then curl that sensor and click <strong style={{ color: 'var(--text-primary)' }}>"Set Bent"</strong>.
         </span>
       </div>
 
@@ -116,7 +116,7 @@ export default function CalibrationPanel({
                 />
                 <div>
                   <div className="flex items-center gap-2">
-                    <span className="text-base font-semibold text-slate-900 dark:text-white">
+                    <span className="text-base font-semibold" style={{ color: 'var(--text-primary)' }}>
                       {finger.name}
                     </span>
                     <span className="text-xs text-slate-400">Pin {finger.sensorPin}</span>
@@ -134,7 +134,7 @@ export default function CalibrationPanel({
               {/* Middle: Calibration Thresholds */}
               <div className="flex items-center gap-6">
                 <div className="text-left sm:text-right">
-                  <div className="font-mono text-xs text-slate-600 dark:text-slate-300">
+                  <div className="font-mono text-xs" style={{ color: 'var(--text-secondary)' }}>
                     Flat: <span className="text-emerald-500 font-semibold">{cal.flat}</span> | Bent:{' '}
                     <span className="text-rose-500 font-semibold">{cal.bent}</span>
                   </div>

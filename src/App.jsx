@@ -42,8 +42,10 @@ export default function App() {
   useEffect(() => {
     document.documentElement.setAttribute('data-theme', theme);
     if (theme === 'light') {
+      document.documentElement.classList.remove('dark');
       document.body.classList.add('theme-light');
     } else {
+      document.documentElement.classList.add('dark');
       document.body.classList.remove('theme-light');
     }
   }, [theme]);

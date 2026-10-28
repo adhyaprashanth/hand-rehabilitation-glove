@@ -252,13 +252,19 @@ export default function HeroSection() {
               transition={{ delay: 0.2, duration: 0.6 }}
               className="flex flex-col gap-4"
             >
-              <h1 className="font-display font-800 text-5xl sm:text-6xl leading-[1.1] tracking-tight text-slate-900 dark:text-[#E8F2FF]">
+              <h1
+                className="font-display font-800 text-5xl sm:text-6xl leading-[1.1] tracking-tight"
+                style={{ color: 'var(--text-primary)' }}
+              >
                 Move Better.
                 <br />
                 <span style={{ color: '#3B82F6' }}>Recover</span>{' '}
                 Smarter.
               </h1>
-              <p className="text-base max-w-md leading-relaxed text-slate-600 dark:text-[#95B2CC]">
+              <p
+                className="text-base max-w-md leading-relaxed"
+                style={{ color: 'var(--text-secondary)' }}
+              >
                 A smart rehabilitation glove that monitors every finger movement individually — detecting exercises, counting reps, and streaming live sensor data in real time.
               </p>
             </motion.div>
@@ -301,7 +307,7 @@ export default function HeroSection() {
                 View Live Demo
                 <ChevronDown className="w-4 h-4" />
               </button>
-              <span className="label-mono text-slate-500 dark:text-[#7090B0]" style={{ fontSize: '0.65rem' }}>
+              <span className="label-mono" style={{ fontSize: '0.65rem', color: 'var(--text-secondary)' }}>
                 5 sensors · real-time
               </span>
             </motion.div>

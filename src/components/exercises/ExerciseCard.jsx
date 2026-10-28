@@ -102,10 +102,10 @@ export default function ExerciseCard({
 
       {/* Title & Description */}
       <div>
-        <h3 className="font-display font-700 text-base text-slate-900 dark:text-white mb-1">
+        <h3 className="font-display font-700 text-base mb-1" style={{ color: 'var(--text-primary)' }}>
           {name}
         </h3>
-        <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
+        <p className="text-xs leading-relaxed" style={{ color: 'var(--text-secondary)' }}>
           {description}
         </p>
       </div>
@@ -138,10 +138,10 @@ export default function ExerciseCard({
         }}
       >
         <div className="flex items-center justify-between text-xs">
-          <div className="flex items-center gap-1.5 text-slate-500 dark:text-slate-400">
+          <div className="flex items-center gap-1.5" style={{ color: 'var(--text-secondary)' }}>
             <Repeat className="w-3.5 h-3.5" />
             <span className="label-mono">REPS:</span>
-            <span className="font-mono font-bold text-slate-900 dark:text-white">
+            <span className="font-mono font-bold" style={{ color: 'var(--text-primary)' }}>
               {currentReps} / {repsTarget}
             </span>
           </div>

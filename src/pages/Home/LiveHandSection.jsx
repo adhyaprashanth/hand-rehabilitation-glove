@@ -56,7 +56,7 @@ export default function LiveHandSection({
             </div>
             <div>
               <div className="flex items-center gap-2 flex-wrap">
-                <span className="font-display font-600 text-sm text-slate-900 dark:text-white">
+                <span className="font-display font-600 text-sm" style={{ color: 'var(--text-primary)' }}>
                   {isSerialConnected ? 'ESP32 Glove Active' : 'Practice Simulation Mode'}
                 </span>
                 <span
@@ -70,7 +70,7 @@ export default function LiveHandSection({
                   {isSerialConnected ? `${packetCount} pkts rx` : 'Simulated'}
                 </span>
               </div>
-              <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
+              <p className="text-xs mt-0.5" style={{ color: 'var(--text-secondary)' }}>
                 {isSerialConnected
                   ? 'Glove connected! Move your fingers to see anatomical response and track exercise repetitions.'
                   : 'Plug your ESP32 into USB, close the Arduino Serial Monitor, and click Connect.'}

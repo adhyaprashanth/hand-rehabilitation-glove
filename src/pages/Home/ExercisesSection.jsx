@@ -67,10 +67,10 @@ export default function ExercisesSection({
                       </span>
                     )}
                   </div>
-                  <h3 className="font-display font-700 text-xl text-slate-900 dark:text-white mt-0.5">
+                  <h3 className="font-display font-700 text-xl mt-0.5" style={{ color: 'var(--text-primary)' }}>
                     {activeExercise.name}
                   </h3>
-                  <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 max-w-xl">
+                  <p className="text-xs mt-1 max-w-xl" style={{ color: 'var(--text-secondary)' }}>
                     {activeExercise.description}
                   </p>
                 </div>
