@@ -6,7 +6,7 @@
  * Data entry point for ALL UI components.
  * Supports:
  *   1. Web Serial API (direct USB connection to ESP32 at 115200 baud)
- *   2. Interactive in-app Calibration (records Flat and Bent ADC for each finger)
+ *   2. Per-Finger Individual Calibration (calibrate flat & bent one sensor at a time)
  *   3. Demo simulation mode (when ESP32 is not connected)
  */
 
@@ -57,10 +57,15 @@ export function useSensorData() {
   const [isSerialConnected, setIsSerialConnected] = useState(false);
   const [packetCount, setPacketCount] = useState(0);
 
-  // Calibration state
+  // Per-finger calibration limits
   const [calibration, setCalibration] = useState(loadStoredCalibration);
-  const [calibratedFlat, setCalibratedFlat] = useState(false);
-  const [calibratedBent, setCalibratedBent] = useState(false);
+  
+  // Track which individual fingers have had flat & bent recorded
+  const [calibratedStatus, setCalibratedStatus] = useState(() => {
+    return Object.fromEntries(
+      FINGERS.map(f => [f.id, { flat: false, bent: false }])
+    );
+  });
 
   const intervalRef = useRef(null);
   const historyRef = useRef(Object.fromEntries(FINGERS.map(f => [f.id, []])));
@@ -75,7 +80,6 @@ export function useSensorData() {
     setSensorState(getSimulatedState());
   }, []);
 
-  // Save calibration updates
   const saveCalibration = useCallback((newCal) => {
     setCalibration(newCal);
     calibrationRef.current = newCal;
@@ -86,45 +90,86 @@ export function useSensorData() {
     }
   }, []);
 
-  // Record current raw values as FLAT position (0% bend)
-  const calibrateFlat = useCallback(() => {
+  // ── Per-Finger Individual Calibration ──────────────────────────────────────
+  const calibrateFingerFlat = useCallback((fingerId) => {
+    const raw = liveRawRef.current[fingerId] ?? 1000;
+    const updated = {
+      ...calibrationRef.current,
+      [fingerId]: {
+        ...(calibrationRef.current[fingerId] || { flat: 1000, bent: 500 }),
+        flat: raw,
+      },
+    };
+    saveCalibration(updated);
+    setCalibratedStatus(s => ({
+      ...s,
+      [fingerId]: { ...s[fingerId], flat: true },
+    }));
+  }, [saveCalibration]);
+
+  const calibrateFingerBent = useCallback((fingerId) => {
+    const raw = liveRawRef.current[fingerId] ?? 500;
+    const updated = {
+      ...calibrationRef.current,
+      [fingerId]: {
+        ...(calibrationRef.current[fingerId] || { flat: 1000, bent: 500 }),
+        bent: raw,
+      },
+    };
+    saveCalibration(updated);
+    setCalibratedStatus(s => ({
+      ...s,
+      [fingerId]: { ...s[fingerId], bent: true },
+    }));
+  }, [saveCalibration]);
+
+  // ── Batch All-Finger Calibration (optional convenience) ───────────────────
+  const calibrateAllFlat = useCallback(() => {
     const updated = { ...calibrationRef.current };
     FINGERS.forEach(f => {
       const raw = liveRawRef.current[f.id] ?? 1000;
       updated[f.id] = { ...updated[f.id], flat: raw };
     });
     saveCalibration(updated);
-    setCalibratedFlat(true);
+    setCalibratedStatus(s => {
+      const next = { ...s };
+      FINGERS.forEach(f => { next[f.id] = { ...next[f.id], flat: true }; });
+      return next;
+    });
   }, [saveCalibration]);
 
-  // Record current raw values as BENT position (100% bend)
-  const calibrateBent = useCallback(() => {
+  const calibrateAllBent = useCallback(() => {
     const updated = { ...calibrationRef.current };
     FINGERS.forEach(f => {
       const raw = liveRawRef.current[f.id] ?? 500;
       updated[f.id] = { ...updated[f.id], bent: raw };
     });
     saveCalibration(updated);
-    setCalibratedBent(true);
+    setCalibratedStatus(s => {
+      const next = { ...s };
+      FINGERS.forEach(f => { next[f.id] = { ...next[f.id], bent: true }; });
+      return next;
+    });
   }, [saveCalibration]);
 
   const resetCalibration = useCallback(() => {
     saveCalibration(DEFAULT_CALIBRATION);
-    setCalibratedFlat(false);
-    setCalibratedBent(false);
+    setCalibratedStatus(
+      Object.fromEntries(FINGERS.map(f => [f.id, { flat: false, bent: false }]))
+    );
   }, [saveCalibration]);
 
-  // Parse incoming line from ESP32 (supports JSON, regex text, and single sensor)
+  // ── Parse incoming serial stream from ESP32 ────────────────────────────────
   const handleRawSerialLine = useCallback((line) => {
     setPacketCount(c => c + 1);
     let parsedData = null;
 
-    // Strategy 1: Parse JSON
+    // Strategy 1: JSON format
     if (line.startsWith('{') && line.endsWith('}')) {
       try {
         parsedData = JSON.parse(line);
       } catch {
-        // not pure JSON
+        // ignore malformed
       }
     }
 
@@ -140,7 +185,7 @@ export function useSensorData() {
         }
       });
     } else {
-      // Strategy 2: Parse text like "Thumb (Pin 34): Raw=985" or "Raw: 985"
+      // Strategy 2: Text matching regex
       const thumbMatch  = line.match(/Thumb.*?Raw[:=]\s*(\d+)/i);
       const indexMatch  = line.match(/Index.*?Raw[:=]\s*(\d+)/i);
       const middleMatch = line.match(/Middle.*?Raw[:=]\s*(\d+)/i);
@@ -153,7 +198,7 @@ export function useSensorData() {
       if (ringMatch)   liveRawRef.current.ring   = parseInt(ringMatch[1], 10);
       if (littleMatch) liveRawRef.current.little = parseInt(littleMatch[1], 10);
 
-      // Single sensor fallback: "Raw: 985"
+      // Single sensor fallback
       if (!thumbMatch && !indexMatch && !middleMatch && !ringMatch && !littleMatch) {
         const singleMatch = line.match(/Raw[:=]\s*(\d+)/i);
         if (singleMatch) {
@@ -162,7 +207,7 @@ export function useSensorData() {
       }
     }
 
-    // Now compute fingers based on current live raw and calibrated limits
+    // Build finger telemetry with per-finger calibrated percent
     const now = Date.now();
     const timeLabel = new Date(now).toLocaleTimeString('en', { hour12: false });
     const currentCal = calibrationRef.current;
@@ -173,7 +218,7 @@ export function useSensorData() {
       const percent = calculateBendPercent(rawVal, cal.flat, cal.bent);
       const status = percent >= 60 ? 'Bending' : percent >= 20 ? 'Active' : 'Resting';
 
-      // History buffer for charts
+      // History buffer
       if (!historyRef.current[f.id]) historyRef.current[f.id] = [];
       historyRef.current[f.id].push({ time: timeLabel, value: percent });
       if (historyRef.current[f.id].length > HISTORY_MAX_POINTS) {
@@ -188,7 +233,7 @@ export function useSensorData() {
       };
     });
 
-    // Detect hand movements
+    // Detect movements
     const avgPercent = fingers.reduce((s, f) => s + f.percent, 0) / fingers.length;
     const thumbPct = fingers.find(f => f.id === 'thumb')?.percent || 0;
     const indexPct = fingers.find(f => f.id === 'index')?.percent || 0;
@@ -285,10 +330,11 @@ export function useSensorData() {
     isWebSerialSupported: isWebSerialSupported(),
     packetCount,
     calibration,
-    calibratedFlat,
-    calibratedBent,
-    calibrateFlat,
-    calibrateBent,
+    calibratedStatus,
+    calibrateFingerFlat,
+    calibrateFingerBent,
+    calibrateAllFlat,
+    calibrateAllBent,
     resetCalibration,
     connectESP32,
     disconnectESP32,

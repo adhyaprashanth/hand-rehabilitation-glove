@@ -6,7 +6,7 @@ import HandVisualization from '../../components/hand/HandVisualization';
 import MovementDetector from '../../components/dashboard/MovementDetector';
 import RepCounter from '../../components/dashboard/RepCounter';
 import SectionTitle from '../../components/common/SectionTitle';
-import { Usb, Radio, CheckCircle2, RotateCcw } from 'lucide-react';
+import { Usb, Radio, Sliders } from 'lucide-react';
 
 export default function LiveHandSection({
   fingers,
@@ -16,13 +16,14 @@ export default function LiveHandSection({
   isSerialConnected = false,
   isWebSerialSupported = true,
   packetCount = 0,
-  calibratedFlat = false,
-  calibratedBent = false,
-  onCalibrateFlat,
-  onCalibrateBent,
   onConnectESP32,
   onDisconnectESP32,
 }) {
+  const scrollToCalibration = () => {
+    const el = document.querySelector('#calibration');
+    if (el) el.scrollIntoView({ behavior: 'smooth' });
+  };
+
   return (
     <section id="live-hand" className="py-24" style={{ background: '#08111F' }}>
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -31,7 +32,7 @@ export default function LiveHandSection({
           subtitle="Real-time monitoring of individual finger movements — 150ms refresh rate."
         />
 
-        {/* Live Hardware Connection & Quick Calibration Bar */}
+        {/* Live Hardware Connection & Calibration Bar */}
         <div
           className="mb-8 p-4 rounded-xl flex flex-col md:flex-row items-center justify-between gap-4"
           style={{
@@ -71,46 +72,27 @@ export default function LiveHandSection({
               </div>
               <p className="text-xs text-slate-400 mt-0.5">
                 {isSerialConnected
-                  ? 'Click "Set Flat" with straight fingers, then "Set Bent" making a fist to calibrate.'
+                  ? 'Hardware connected! Scroll to the Calibration Panel below to calibrate each sensor one-by-one.'
                   : 'Plug your ESP32 into USB, close the Arduino Serial Monitor, and click Connect.'}
               </p>
             </div>
           </div>
 
-          {/* Quick Calibration buttons + Connect/Disconnect */}
+          {/* Action buttons */}
           <div className="flex items-center gap-2 w-full md:w-auto flex-wrap">
             {isSerialConnected && (
-              <>
-                <button
-                  onClick={onCalibrateFlat}
-                  className="flex-1 md:flex-initial px-3 py-1.5 rounded-lg text-xs font-medium flex items-center justify-center gap-1.5 transition-all"
-                  style={{
-                    background: calibratedFlat ? 'rgba(16,185,129,0.2)' : 'rgba(59,130,246,0.2)',
-                    border: `1px solid ${calibratedFlat ? 'rgba(52,211,153,0.5)' : 'rgba(59,130,246,0.4)'}`,
-                    color: calibratedFlat ? '#34D399' : '#93C5FD',
-                  }}
-                  title="Record current ADC values as Flat (0% bend)"
-                >
-                  <span>🖐</span>
-                  <span>Set Flat (0%)</span>
-                  {calibratedFlat && <CheckCircle2 className="w-3.5 h-3.5" />}
-                </button>
-
-                <button
-                  onClick={onCalibrateBent}
-                  className="flex-1 md:flex-initial px-3 py-1.5 rounded-lg text-xs font-medium flex items-center justify-center gap-1.5 transition-all"
-                  style={{
-                    background: calibratedBent ? 'rgba(16,185,129,0.2)' : 'rgba(244,63,94,0.2)',
-                    border: `1px solid ${calibratedBent ? 'rgba(52,211,153,0.5)' : 'rgba(244,63,94,0.4)'}`,
-                    color: calibratedBent ? '#34D399' : '#FDA4AF',
-                  }}
-                  title="Record current ADC values as Bent (100% bend)"
-                >
-                  <span>✊</span>
-                  <span>Set Bent (100%)</span>
-                  {calibratedBent && <CheckCircle2 className="w-3.5 h-3.5" />}
-                </button>
-              </>
+              <button
+                onClick={scrollToCalibration}
+                className="flex-1 md:flex-initial px-3 py-1.5 rounded-lg text-xs font-medium flex items-center justify-center gap-1.5 transition-all"
+                style={{
+                  background: 'rgba(59,130,246,0.2)',
+                  border: '1px solid rgba(59,130,246,0.4)',
+                  color: '#93C5FD',
+                }}
+              >
+                <Sliders className="w-3.5 h-3.5" />
+                <span>Calibrate Sensors</span>
+              </button>
             )}
 
             {isWebSerialSupported && (

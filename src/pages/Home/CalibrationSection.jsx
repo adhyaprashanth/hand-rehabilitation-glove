@@ -10,10 +10,11 @@ export default function CalibrationSection({
   systemStatus,
   fingers,
   calibration,
-  calibratedFlat,
-  calibratedBent,
-  onCalibrateFlat,
-  onCalibrateBent,
+  calibratedStatus,
+  onCalibrateFingerFlat,
+  onCalibrateFingerBent,
+  onCalibrateAllFlat,
+  onCalibrateAllBent,
   onResetCalibration,
   isSerialConnected,
 }) {
@@ -25,15 +26,16 @@ export default function CalibrationSection({
         <div>
           <SectionTitle
             title="SENSOR CALIBRATION"
-            subtitle="Record your hand's Flat (0%) and Bent (100%) limits to calibrate the glove in real-time."
+            subtitle="Calibrate each sensor individually (Flat 0% and Bent 100%) to get accurate bend percentages."
           />
           <CalibrationPanel
             fingers={fingers}
             calibration={calibration}
-            calibratedFlat={calibratedFlat}
-            calibratedBent={calibratedBent}
-            onCalibrateFlat={onCalibrateFlat}
-            onCalibrateBent={onCalibrateBent}
+            calibratedStatus={calibratedStatus}
+            onCalibrateFingerFlat={onCalibrateFingerFlat}
+            onCalibrateFingerBent={onCalibrateFingerBent}
+            onCalibrateAllFlat={onCalibrateAllFlat}
+            onCalibrateAllBent={onCalibrateAllBent}
             onResetCalibration={onResetCalibration}
             isSerialConnected={isSerialConnected}
           />

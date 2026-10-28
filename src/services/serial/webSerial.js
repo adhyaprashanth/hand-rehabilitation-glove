@@ -2,7 +2,7 @@
  * services/serial/webSerial.js
  *
  * Web Serial API service to connect directly to the ESP32 over USB at 115200 baud.
- * Works natively in Chrome, Edge, Brave, and Opera without any backend server.
+ * Works natively in Chrome, Edge, Brave, and Opera.
  */
 
 let activePort = null;
@@ -31,33 +31,29 @@ export async function connectWebSerial(onRawLineReceived, onConnectionChange) {
   try {
     // 1. Prompt user to select USB Serial port
     const port = await navigator.serial.requestPort();
+    
+    // 2. Open serial port at 115200 baud
     await port.open({ baudRate: 115200 });
 
     activePort = port;
     keepReading = true;
     onConnectionChange(true, 'ESP32 Connected');
 
-    // 2. Setup text decoder stream pipeline
-    const textDecoder = new TextDecoderStream();
-    port.readable.pipeTo(textDecoder.writable).catch((err) => {
-      console.warn('[WebSerial] Pipe closed:', err);
-    });
-
-    const reader = textDecoder.readable.getReader();
+    // 3. Direct ReadableStream reader + TextDecoder (fail-safe without pipeTo locking)
+    const reader = port.readable.getReader();
     activeReader = reader;
-
+    const decoder = new TextDecoder();
     let buffer = '';
 
-    // 3. Read stream loop
+    // 4. Read stream loop
     while (keepReading) {
       const { value, done } = await reader.read();
       if (done) {
         break;
       }
       if (value) {
-        buffer += value;
+        buffer += decoder.decode(value, { stream: true });
         const lines = buffer.split(/\r?\n/);
-        // Keep the last partial segment in the buffer
         buffer = lines.pop() || '';
 
         for (const rawLine of lines) {
@@ -69,10 +65,22 @@ export async function connectWebSerial(onRawLineReceived, onConnectionChange) {
       }
     }
 
-    reader.releaseLock();
+    try {
+      reader.releaseLock();
+    } catch {
+      // ignore
+    }
   } catch (err) {
-    if (err.name !== 'NotFoundError') {
+    if (err.name === 'NotFoundError') {
+      // User cancelled the prompt dialog - no alert needed
+      console.log('[WebSerial] Port selection cancelled by user.');
+    } else {
       console.error('[WebSerial Error]', err);
+      alert(
+        `⚠️ Failed to connect to ESP32: ${err.message || err}\n\n` +
+        `IMPORTANT: If the Arduino IDE Serial Monitor is open, please CLOSE IT completely! ` +
+        `Only one application can use the COM port at a time.`
+      );
     }
     await disconnectWebSerial(onConnectionChange);
     return false;

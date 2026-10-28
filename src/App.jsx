@@ -7,7 +7,7 @@
  *   - useSensorData() is the single data source for all sensor state.
  *   - Supports USB WebSerial connection directly to ESP32 hardware!
  *   - When connected via USB, real hardware streams live to all UI sections.
- *   - Supports in-app 2-step calibration (Set Flat, Set Bent).
+ *   - Supports per-finger individual calibration (calibrate flat & bent one sensor at a time).
  *   - When disconnected, seamlessly falls back to demo simulation.
  */
 
@@ -36,10 +36,11 @@ export default function App() {
     isWebSerialSupported,
     packetCount,
     calibration,
-    calibratedFlat,
-    calibratedBent,
-    calibrateFlat,
-    calibrateBent,
+    calibratedStatus,
+    calibrateFingerFlat,
+    calibrateFingerBent,
+    calibrateAllFlat,
+    calibrateAllBent,
     resetCalibration,
     connectESP32,
     disconnectESP32,
@@ -67,10 +68,6 @@ export default function App() {
         isSerialConnected={isSerialConnected}
         isWebSerialSupported={isWebSerialSupported}
         packetCount={packetCount}
-        calibratedFlat={calibratedFlat}
-        calibratedBent={calibratedBent}
-        onCalibrateFlat={calibrateFlat}
-        onCalibrateBent={calibrateBent}
         onConnectESP32={connectESP32}
         onDisconnectESP32={disconnectESP32}
       />
@@ -92,10 +89,11 @@ export default function App() {
         systemStatus={systemStatus}
         fingers={fingers}
         calibration={calibration}
-        calibratedFlat={calibratedFlat}
-        calibratedBent={calibratedBent}
-        onCalibrateFlat={calibrateFlat}
-        onCalibrateBent={calibrateBent}
+        calibratedStatus={calibratedStatus}
+        onCalibrateFingerFlat={calibrateFingerFlat}
+        onCalibrateFingerBent={calibrateFingerBent}
+        onCalibrateAllFlat={calibrateAllFlat}
+        onCalibrateAllBent={calibrateAllBent}
         onResetCalibration={resetCalibration}
         isSerialConnected={isSerialConnected}
       />
