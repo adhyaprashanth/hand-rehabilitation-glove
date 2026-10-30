@@ -32,7 +32,7 @@ export default function SectionTitle({ icon: Icon, emoji, title, subtitle, align
       </div>
 
       {subtitle && (
-        <p className={`text-base max-w-lg leading-relaxed ${alignClass}`} style={{ color: 'var(--text-secondary)' }}>
+        <p className={`text-base max-w-lg leading-relaxed ${alignClass}`} style={{ color: '#95B2CC' }}>
           {subtitle}
         </p>
       )}

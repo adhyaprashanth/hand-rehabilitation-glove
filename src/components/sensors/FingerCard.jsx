@@ -1,14 +1,12 @@
 /**
- * components/sensors/FingerCard.jsx — Rehabilitation Portal
+ * components/sensors/FingerCard.jsx — DEXTER dark theme
  *
- * Clinical Range-of-Motion (ROM) mobility card for each finger.
- * Focuses on therapeutic stages (Resting, Functional Range, Full Flexion)
- * rather than raw percentage numbers.
+ * Dark navy card with per-finger accent color, technical mono labels,
+ * animated progress bar, ADC readout. All logic preserved.
  */
 
 import { motion } from 'framer-motion';
 import { FINGER_BAR_COLOR, FINGER_SVG_COLORS } from '../../constants/fingers';
-import { Activity, CheckCircle2 } from 'lucide-react';
 
 export default function FingerCard({ finger }) {
   const {
@@ -16,153 +14,108 @@ export default function FingerCard({ finger }) {
     name = 'Finger',
     percent = 0,
     value = 0,
+    status = 'Resting',
     color = 'blue',
   } = finger || {};
 
-  // Therapeutic mobility stages based on calibrated range of motion
-  let stageName = 'Resting Extension';
-  let angleApprox = '0°';
-  let stageDescription = 'Finger relaxed and straightened';
-  let stageColor = '#94A3B8';
-
-  if (percent >= 65) {
-    stageName = 'Full Grip Flexion';
-    angleApprox = '90°';
-    stageDescription = 'Maximum curl achieved';
-    stageColor = '#FB7185';
-  } else if (percent >= 25) {
-    stageName = 'Functional Range';
-    angleApprox = '45°';
-    stageDescription = 'Active mid-range flexion';
-    stageColor = '#38BDF8';
-  }
+  const isBending = status === 'Bending';
+  const isActive  = status === 'Active';
+  const isLive    = isBending || isActive;
 
   const accentColor = FINGER_BAR_COLOR[color] || FINGER_BAR_COLOR.blue;
-  const isFlexed = percent >= 25;
+  const svgColors   = FINGER_SVG_COLORS[id]   || FINGER_SVG_COLORS.thumb;
 
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true }}
-      whileHover={{ y: -4 }}
+      whileHover={{ y: -4, boxShadow: `0 12px 32px rgba(0,0,0,0.5), 0 0 20px ${svgColors.glow}` }}
       transition={{ duration: 0.3 }}
-      className="relative overflow-hidden flex flex-col gap-4 p-5 rounded-2xl border transition-all duration-300"
+      className="relative overflow-hidden flex flex-col gap-4 p-5"
       style={{
-        background: 'var(--bg-card)',
-        borderColor: isFlexed ? accentColor + '40' : 'var(--border-subtle)',
-        boxShadow: isFlexed ? `0 0 20px ${accentColor}18` : 'var(--shadow-card)',
+        background: '#0F1E30',
+        border: `1px solid ${isLive ? accentColor + '35' : '#2A3F58'}`,
+        borderRadius: '1rem',
+        boxShadow: isLive ? `0 0 20px ${svgColors.glow}` : '0 2px 12px rgba(0,0,0,0.4)',
+        transition: 'border-color 0.4s, box-shadow 0.4s',
       }}
     >
       {/* Top accent line */}
-      <div
-        className="absolute top-0 left-0 right-0 h-1"
-        style={{
-          background: isFlexed ? accentColor : 'var(--border-subtle)',
-          transition: 'background 0.4s',
-        }}
-      />
+      <div className="absolute top-0 left-0 right-0 h-0.5 rounded-t-xl"
+        style={{ background: isLive ? accentColor : '#2A3F58', opacity: isLive ? 1 : 0.4, transition: 'background 0.4s' }} />
 
       {/* Header row */}
       <div className="flex items-center justify-between">
-        <div className="flex items-center gap-2.5">
-          <span
-            className="w-3 h-3 rounded-full flex-shrink-0"
-            style={{ background: accentColor, boxShadow: `0 0 8px ${accentColor}60` }}
-          />
-          <div>
-            <span className="label-mono" style={{ fontSize: '0.58rem', color: 'var(--text-secondary)' }}>
-              FINGER SENSOR
-            </span>
-            <h4 className="font-display font-600 text-sm" style={{ color: 'var(--text-primary)' }}>
-              {name}
-            </h4>
-          </div>
+        <div className="flex flex-col gap-0.5">
+          <span className="label-mono" style={{ color: '#7090B0', fontSize: '0.6rem', letterSpacing: '0.1em' }}>SENSOR</span>
+          <span className="font-display font-600 text-sm text-white">{name}</span>
         </div>
 
-        {/* Mobility Stage Chip */}
+        {/* Status chip */}
         <div
           className="flex items-center gap-1.5 px-2 py-1 rounded-md"
           style={{
-            background: isFlexed ? accentColor + '18' : 'rgba(148,163,184,0.1)',
-            border: `1px solid ${isFlexed ? accentColor + '40' : 'var(--border-subtle)'}`,
+            background: isLive ? accentColor + '15' : 'rgba(38,53,74,0.4)',
+            border: `1px solid ${isLive ? accentColor + '40' : '#2A3F58'}`,
           }}
         >
-          <span
-            className="w-1.5 h-1.5 rounded-full"
-            style={{ background: isFlexed ? accentColor : '#94A3B8' }}
-          />
-          <span
-            className="label-mono font-semibold"
+          <span className="w-1.5 h-1.5 rounded-full"
             style={{
-              color: isFlexed ? accentColor : '#94A3B8',
-              fontSize: '0.58rem',
-            }}
-          >
-            {angleApprox}
+              background: isLive ? accentColor : '#7090B0',
+              boxShadow: isLive ? `0 0 6px ${accentColor}` : 'none',
+              animation: isLive ? 'pulseGlow 2s ease-in-out infinite' : 'none',
+            }} />
+          <span className="label-mono" style={{
+            color: isLive ? accentColor : '#7090B0',
+            fontSize: '0.58rem',
+            letterSpacing: '0.08em',
+          }}>
+            {status.toUpperCase()}
           </span>
         </div>
       </div>
 
-      {/* Clinical Stage Display */}
-      <div className="py-1">
-        <div className="flex items-baseline justify-between">
-          <span
-            className="font-display font-700 text-lg leading-tight"
-            style={{ color: isFlexed ? accentColor : 'var(--text-primary)' }}
+      {/* Big percentage + ADC */}
+      <div className="flex items-end justify-between">
+        <div>
+          <motion.div
+            key={percent}
+            animate={{ scale: [1, 1.06, 1] }}
+            transition={{ duration: 0.3 }}
+            className="flex items-baseline gap-1"
           >
-            {stageName}
-          </span>
+            <span
+              className="font-display font-700 text-4xl"
+              style={{ color: isLive ? accentColor : '#08111F' }}
+            >
+              {percent}
+            </span>
+            <span className="text-base font-medium" style={{ color: '#7090B0' }}>%</span>
+          </motion.div>
+          <span className="label-mono" style={{ color: '#7090B0', fontSize: '0.6rem' }}>BEND LEVEL</span>
         </div>
-        <p className="text-xs mt-1" style={{ color: 'var(--text-secondary)' }}>
-          {stageDescription}
-        </p>
+
+        {/* ADC readout — technical */}
+        <div className="text-right">
+          <div className="font-mono text-xs" style={{ color: '#7090B0' }}>{value}</div>
+          <div className="label-mono" style={{ color: '#2A3F58', fontSize: '0.55rem' }}>ADC RAW</div>
+        </div>
       </div>
 
-      {/* 3-Segment Clinical Range Gauge */}
+      {/* Progress bar */}
       <div>
-        <div className="grid grid-cols-3 gap-1.5 h-2 rounded-full overflow-hidden">
-          {/* Segment 1: Resting */}
-          <div
-            className="rounded-l-full transition-colors duration-300"
-            style={{
-              background: percent < 25 ? accentColor : 'rgba(148,163,184,0.2)',
-            }}
-          />
-          {/* Segment 2: Functional */}
-          <div
-            className="transition-colors duration-300"
-            style={{
-              background: percent >= 25 && percent < 65 ? accentColor : 'rgba(148,163,184,0.2)',
-            }}
-          />
-          {/* Segment 3: Full Flexion */}
-          <div
-            className="rounded-r-full transition-colors duration-300"
-            style={{
-              background: percent >= 65 ? accentColor : 'rgba(148,163,184,0.2)',
-            }}
+        <div className="h-1.5 rounded-full overflow-hidden" style={{ background: '#152440' }}>
+          <motion.div
+            className="h-full rounded-full"
+            style={{ background: accentColor }}
+            animate={{ width: `${percent}%` }}
+            transition={{ type: 'spring', stiffness: 60, damping: 20 }}
           />
         </div>
-
-        {/* Labels below segments */}
-        <div className="flex justify-between mt-1.5 label-mono text-[9px] text-slate-400">
-          <span>EXTEND</span>
-          <span>FUNCTIONAL</span>
-          <span>FULL FLEX</span>
+        <div className="flex justify-between mt-1" style={{ color: '#2A3F58', fontSize: '0.55rem', fontFamily: 'monospace' }}>
+          <span>0</span><span>50%</span><span>100</span>
         </div>
-      </div>
-
-      {/* Raw Signal Telemetry Footer */}
-      <div
-        className="flex items-center justify-between pt-2 border-t text-xs text-slate-400"
-        style={{ borderColor: 'var(--border-subtle)' }}
-      >
-        <span className="label-mono text-[10px]">RAW ADC: {value}</span>
-        <span className="label-mono text-[10px] text-emerald-500 flex items-center gap-1">
-          <CheckCircle2 className="w-3 h-3" />
-          CALIBRATED
-        </span>
       </div>
     </motion.div>
   );

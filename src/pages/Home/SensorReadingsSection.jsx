@@ -1,5 +1,5 @@
 /**
- * pages/Home/SensorReadingsSection.jsx — Rehabilitation Portal
+ * pages/Home/SensorReadingsSection.jsx — DEXTER dark theme
  */
 
 import { motion } from 'framer-motion';
@@ -8,11 +8,11 @@ import SectionTitle from '../../components/common/SectionTitle';
 
 export default function SensorReadingsSection({ fingers = [] }) {
   return (
-    <section id="sensor-readings" className="py-20" style={{ background: 'var(--bg-primary)' }}>
+    <section id="sensor-readings" className="py-24" style={{ background: '#0C1828' }}>
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
         <SectionTitle
-          title="FINGER MOBILITY STAGES"
-          subtitle="Real-time range-of-motion analysis across each individual finger — from resting extension to full grip."
+          title="SENSOR READINGS"
+          subtitle="Five independent flex sensors — each individually calibrated, each monitored at 150ms intervals."
         />
 
         <motion.div
@@ -34,26 +34,24 @@ export default function SensorReadingsSection({ fingers = [] }) {
           ))}
         </motion.div>
 
-        {/* Clinical Range Legend */}
+        {/* Status legend */}
         <motion.div
           initial={{ opacity: 0 }}
           whileInView={{ opacity: 1 }}
           viewport={{ once: true }}
           transition={{ delay: 0.4 }}
-          className="mt-8 flex items-center justify-center gap-8 flex-wrap text-xs text-slate-400"
+          className="mt-6 flex items-center justify-center gap-6 flex-wrap"
         >
-          <div className="flex items-center gap-2">
-            <span className="w-2.5 h-2.5 rounded-full bg-rose-400" />
-            <span>FULL FLEXION (90° Grip)</span>
-          </div>
-          <div className="flex items-center gap-2">
-            <span className="w-2.5 h-2.5 rounded-full bg-cyan-400" />
-            <span>FUNCTIONAL RANGE (45° Mid-Motion)</span>
-          </div>
-          <div className="flex items-center gap-2">
-            <span className="w-2.5 h-2.5 rounded-full bg-slate-400" />
-            <span>RESTING EXTENSION (0° Straight)</span>
-          </div>
+          {[
+            { color: '#FB7185', label: 'BENDING  ≥ 60%' },
+            { color: '#3B82F6', label: 'ACTIVE  20–60%' },
+            { color: '#2A3F58', label: 'RESTING  < 20%' },
+          ].map(({ color, label }) => (
+            <div key={label} className="flex items-center gap-2">
+              <span className="w-1.5 h-1.5 rounded-full" style={{ background: color, boxShadow: color !== '#2A3F58' ? `0 0 6px ${color}` : 'none' }} />
+              <span className="label-mono" style={{ color: '#7090B0', fontSize: '0.6rem', letterSpacing: '0.08em' }}>{label}</span>
+            </div>
+          ))}
         </motion.div>
       </div>
     </section>

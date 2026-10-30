@@ -1,102 +1,97 @@
 /**
  * services/firebase/index.js
  *
- * Firebase Realtime Database Integration for ESP32 Hand Glove.
- * Streams real-time sensor packets over Wi-Fi to the web rehabilitation portal.
+ * ─── FIREBASE REAL-TIME DATA INTEGRATION ────────────────────────────────────
+ *
+ * This is where real ESP32 → Firebase sensor data will be connected.
+ *
+ * TO CONNECT FIREBASE:
+ *   1. Install Firebase: `npm install firebase`
+ *   2. Create a Firebase project at https://console.firebase.google.com
+ *   3. Enable Realtime Database (or Firestore)
+ *   4. Copy your Firebase config from Project Settings → Your Apps
+ *   5. Paste the config object into the `firebaseConfig` variable below
+ *   6. Implement `subscribeToSensorData()` using `onValue()` from firebase/database
+ *   7. In hooks/useSensorData.js — set `USE_FIREBASE = true`
+ *
+ * EXPECTED DATABASE STRUCTURE (ESP32 writes to this path):
+ *
+ *   /glove/
+ *     sensors/
+ *       thumb:  { value: 2048, percent: 50 }
+ *       index:  { value: 3000, percent: 73 }
+ *       middle: { value: 1500, percent: 37 }
+ *       ring:   { value: 500,  percent: 12 }
+ *       little: { value: 800,  percent: 20 }
+ *     movement/
+ *       name: "Hand Flexion"
+ *       detected: true
+ *       timestamp: 1234567890
+ *     repCount: 12
+ *     systemStatus/
+ *       esp32Connected: true
+ *       wifiConnected: true
  */
-
-import { initializeApp, getApps, getApp } from 'firebase/app';
-import { getDatabase, ref, onValue, off, set } from 'firebase/database';
 
 // ─── Firebase configuration ──────────────────────────────────────────────────
-// Reads from environment variables (Vite prefix: VITE_FIREBASE_*)
-// Falls back to direct config or demo defaults.
-export const firebaseConfig = {
-  apiKey:            import.meta.env?.VITE_FIREBASE_API_KEY            || 'AIzaSyDemoKeyForHandRehabGlove12345678',
-  authDomain:        import.meta.env?.VITE_FIREBASE_AUTH_DOMAIN        || 'hand-rehab-glove.firebaseapp.com',
-  databaseURL:       import.meta.env?.VITE_FIREBASE_DATABASE_URL       || 'https://hand-rehab-glove-default-rtdb.firebaseio.com',
-  projectId:         import.meta.env?.VITE_FIREBASE_PROJECT_ID         || 'hand-rehab-glove',
-  storageBucket:     import.meta.env?.VITE_FIREBASE_STORAGE_BUCKET     || 'hand-rehab-glove.appspot.com',
-  messagingSenderId: import.meta.env?.VITE_FIREBASE_MESSAGING_SENDER_ID || '123456789012',
-  appId:             import.meta.env?.VITE_FIREBASE_APP_ID             || '1:123456789012:web:abcdef123456',
+// TODO: Replace with your actual Firebase config from Firebase Console
+const firebaseConfig = {
+  apiKey:            'YOUR_API_KEY',
+  authDomain:        'YOUR_PROJECT.firebaseapp.com',
+  databaseURL:       'https://YOUR_PROJECT-default-rtdb.firebaseio.com',
+  projectId:         'YOUR_PROJECT_ID',
+  storageBucket:     'YOUR_PROJECT.appspot.com',
+  messagingSenderId: 'YOUR_SENDER_ID',
+  appId:             'YOUR_APP_ID',
 };
 
+// ─── Firebase subscription ───────────────────────────────────────────────────
 /**
- * Returns true if real Firebase project credentials are provided
- */
-export function isFirebaseConfigured() {
-  const url = firebaseConfig.databaseURL;
-  const key = firebaseConfig.apiKey;
-  return Boolean(
-    url &&
-    key &&
-    !url.includes('YOUR_PROJECT') &&
-    !key.includes('YOUR_API_KEY')
-  );
-}
-
-let appInstance = null;
-let dbInstance = null;
-
-export function getFirebaseDb() {
-  if (!dbInstance) {
-    appInstance = getApps().length > 0 ? getApp() : initializeApp(firebaseConfig);
-    dbInstance = getDatabase(appInstance);
-  }
-  return dbInstance;
-}
-
-/**
- * Subscribe to live glove telemetry from Firebase Realtime Database.
- * Listens to `/glove` (or `/glove/live`).
+ * Subscribe to live sensor data from Firebase.
  *
- * @param {function(Object): void} onData Callback with raw or structured telemetry packet
- * @param {function(Error): void} [onError] Optional error handler
- * @returns {function} Unsubscribe function
+ * @param {function(import('../../types').FingerData[]): void} onData
+ *   Callback invoked with the latest sensor state whenever Firebase updates.
+ * @returns {function} Unsubscribe function — call on component unmount.
+ *
+ * IMPLEMENTATION STEPS (when ready):
+ *   1. Uncomment the Firebase imports below.
+ *   2. Call `initializeApp(firebaseConfig)` once at app startup.
+ *   3. Use `onValue(ref(db, '/glove'), snapshot => { ... })`.
+ *   4. Transform the snapshot into the FingerData[] shape.
+ *   5. Call `onData(transformedData)`.
+ *   6. Return the unsubscribe function from onValue.
  */
-export function subscribeToSensorData(onData, onError) {
-  try {
-    const db = getFirebaseDb();
-    const gloveRef = ref(db, 'glove');
+export function subscribeToSensorData(onData) {
+  // TODO: Implement when Firebase is connected
+  //
+  // import { initializeApp } from 'firebase/app';
+  // import { getDatabase, ref, onValue } from 'firebase/database';
+  //
+  // const app = initializeApp(firebaseConfig);
+  // const db  = getDatabase(app);
+  //
+  // const sensorRef = ref(db, '/glove');
+  // const unsubscribe = onValue(sensorRef, (snapshot) => {
+  //   const raw = snapshot.val();
+  //   if (!raw) return;
+  //   const transformed = transformFirebaseData(raw);
+  //   onData(transformed);
+  // });
+  //
+  // return unsubscribe;
 
-    const unsubscribe = onValue(
-      gloveRef,
-      (snapshot) => {
-        const val = snapshot.val();
-        if (val) {
-          onData(val);
-        }
-      },
-      (error) => {
-        console.warn('[Firebase] Stream error:', error);
-        if (onError) onError(error);
-      }
-    );
-
-    return () => {
-      off(gloveRef);
-    };
-  } catch (err) {
-    console.warn('[Firebase] Failed to initialize subscription:', err);
-    if (onError) onError(err);
-    return () => {};
-  }
+  console.warn('[Firebase] subscribeToSensorData called but not yet implemented. Using Demo Mode.');
+  return () => {}; // no-op unsubscribe
 }
 
 /**
- * Convenience helper to publish or simulate test telemetry from the dashboard
+ * Transform raw Firebase data into the app's FingerData[] shape.
+ * Edit this function to match your actual Firebase data structure.
+ *
+ * @param {Object} raw - Raw data from Firebase snapshot.val()
+ * @returns {{ fingers, movement, repCount, systemStatus }}
  */
-export async function pushTestSensorData(telemetry) {
-  try {
-    const db = getFirebaseDb();
-    const liveRef = ref(db, 'glove/live');
-    await set(liveRef, {
-      ...telemetry,
-      updatedAt: Date.now(),
-    });
-    return true;
-  } catch (e) {
-    console.error('[Firebase] Failed to push test telemetry:', e);
-    return false;
-  }
+function transformFirebaseData(raw) {
+  // TODO: Implement transformation matching your Firebase structure
+  return raw;
 }

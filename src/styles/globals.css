@@ -4,7 +4,7 @@
 @tailwind components;
 @tailwind utilities;
 
-/* ─── DEXTER Design Tokens — Dark Theme ───────────── */
+/* ─── DEXTER Design Tokens — Dark Navy Theme ───────────── */
 :root {
   --bg-primary:       #08111F;
   --bg-secondary:     #0C1828;
@@ -27,28 +27,6 @@
   --shadow-card:      0 2px 16px rgba(0,0,0,0.5), 0 0 0 1px rgba(42,63,88,0.4);
 }
 
-/* ─── Clinical Light Theme ────────────────────────── */
-[data-theme="light"], .theme-light {
-  --bg-primary:       #F8FAFC;
-  --bg-secondary:     #F1F5F9;
-  --bg-card:          #FFFFFF;
-  --bg-card-elevated: #F8FAFC;
-  --border-subtle:    #E2E8F0;
-  --border-muted:     #CBD5E1;
-
-  --accent-blue:      #2563EB;
-  --accent-cyan:      #0891B2;
-  --accent-coral:     #E11D48;
-  --accent-emerald:   #059669;
-
-  --text-primary:     #0F172A;
-  --text-secondary:   #475569;
-  --text-muted:       #64748B;
-  --text-faint:       #94A3B8;
-
-  --shadow-card:      0 4px 16px rgba(0,0,0,0.06), 0 0 0 1px #E2E8F0;
-}
-
 /* ─── Base ───────────────────────────────────────────────────── */
 * { box-sizing: border-box; }
 html { scroll-behavior: smooth; }
@@ -59,14 +37,13 @@ body {
   color: var(--text-primary);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  transition: background-color 0.3s ease, color 0.3s ease;
 }
 
 /* ─── Scrollbar ──────────────────────────────────────────────── */
 ::-webkit-scrollbar       { width: 5px; }
-::-webkit-scrollbar-track { background: var(--bg-secondary); }
-::-webkit-scrollbar-thumb { background: var(--border-subtle); border-radius: 99px; }
-::-webkit-scrollbar-thumb:hover { background: var(--accent-blue); }
+::-webkit-scrollbar-track { background: #060E1A; }
+::-webkit-scrollbar-thumb { background: #2A3F58; border-radius: 99px; }
+::-webkit-scrollbar-thumb:hover { background: #3B82F6; }
 
 /* ─── Surface Utilities ─────────────────────────────────────── */
 .surface {
@@ -81,49 +58,112 @@ body {
   border-radius: var(--radius-card);
 }
 
-/* ─── Typography helper classes ──────────────────────────────── */
-.font-display { font-family: 'Poppins', sans-serif; }
-.font-mono    { font-family: 'JetBrains Mono', monospace; }
-
-.label-mono {
-  font-family: 'JetBrains Mono', monospace;
-  font-size: 0.65rem;
-  font-weight: 500;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
+/* ─── Tech Grid Background ───────────────────────────────────── */
+.bg-tech-grid {
+  background-image:
+    linear-gradient(rgba(59,130,246,0.06) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(59,130,246,0.06) 1px, transparent 1px);
+  background-size: 44px 44px;
 }
 
-/* ─── Animations ─────────────────────────────────────────────── */
-@keyframes pulseGlow {
-  0%, 100% { opacity: 1; }
-  50%       { opacity: 0.4; }
+/* ─── Glow Effects ───────────────────────────────────────────── */
+.glow-blue  { box-shadow: 0 0 24px rgba(59,130,246,0.3), 0 0 64px rgba(59,130,246,0.12); }
+.glow-cyan  { box-shadow: 0 0 20px rgba(34,211,238,0.25); }
+.glow-coral { box-shadow: 0 0 16px rgba(251,113,133,0.25); }
+.text-glow-blue { text-shadow: 0 0 20px rgba(59,130,246,0.45); }
+
+/* ─── Recharts dark overrides ────────────────────────────────── */
+.recharts-surface { overflow: visible; }
+.recharts-cartesian-grid line { stroke: #1E3048; }
+.recharts-text { fill: #4A6580 !important; }
+
+/* ─── Modal backdrop ─────────────────────────────────────────── */
+.modal-backdrop {
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
 }
 
+/* ─── Scan line animation ────────────────────────────────────── */
 @keyframes scanLine {
-  0%   { top: 0%;   opacity: 0.6; }
-  50%  { opacity: 0.3; }
+  0%   { top: -2px; opacity: 0.5; }
+  50%  { opacity: 0.25; }
   100% { top: 100%; opacity: 0; }
 }
-
 .scan-line {
   position: absolute;
   left: 0; right: 0;
   height: 1px;
-  background: linear-gradient(90deg, transparent, rgba(59,130,246,0.5), rgba(34,211,238,0.5), transparent);
+  background: linear-gradient(90deg, transparent, rgba(59,130,246,0.3), rgba(34,211,238,0.2), transparent);
   animation: scanLine 10s linear infinite;
   pointer-events: none;
 }
 
-/* ─── Tech Grid background pattern ───────────────────────────── */
-.bg-tech-grid {
-  background-size: 40px 40px;
-  background-image:
-    linear-gradient(to right, rgba(42, 63, 88, 0.25) 1px, transparent 1px),
-    linear-gradient(to bottom, rgba(42, 63, 88, 0.25) 1px, transparent 1px);
+/* ─── Pulse glow ─────────────────────────────────────────────── */
+@keyframes pulseGlow {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(52,211,153,0.5); }
+  50%       { box-shadow: 0 0 0 6px rgba(52,211,153,0); }
 }
 
-.theme-light .bg-tech-grid {
-  background-image:
-    linear-gradient(to right, rgba(226, 232, 240, 0.8) 1px, transparent 1px),
-    linear-gradient(to bottom, rgba(226, 232, 240, 0.8) 1px, transparent 1px);
+/* ─── Signal travel (DataFlow dots) ──────────────────────────── */
+@keyframes signalTravel {
+  0%   { opacity: 0; transform: translateY(0); }
+  20%  { opacity: 1; }
+  80%  { opacity: 1; }
+  100% { opacity: 0; transform: translateY(28px); }
 }
+.animate-signal { animation: signalTravel 1.8s ease-in-out infinite; }
+
+/* ─── Skeleton pulse (background hand) ───────────────────────── */
+@keyframes skeletonPulse {
+  0%, 100% { opacity: 0.025; }
+  50%       { opacity: 0.045; }
+}
+.animate-skeleton-pulse { animation: skeletonPulse 6s ease-in-out infinite; }
+
+/* ─── Float ──────────────────────────────────────────────────── */
+@keyframes floatSubtle {
+  0%, 100% { transform: translateY(0px); }
+  50%       { transform: translateY(-7px); }
+}
+.animate-float-subtle { animation: floatSubtle 6s ease-in-out infinite; }
+
+/* ─── Typography utilities ───────────────────────────────────── */
+.label-mono {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.65rem;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+/* ─── Buttons ────────────────────────────────────────────────── */
+.btn-primary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1.75rem;
+  background: #3B82F6;
+  color: #fff;
+  font-weight: 600;
+  font-size: 0.875rem;
+  border-radius: 0.625rem;
+  border: 1px solid rgba(59,130,246,0.4);
+  transition: all 0.2s;
+  box-shadow: 0 0 20px rgba(59,130,246,0.3);
+}
+.btn-primary:hover  { background: #2563EB; box-shadow: 0 0 32px rgba(59,130,246,0.45); transform: translateY(-1px); }
+.btn-primary:active { transform: scale(0.97); }
+
+.btn-ghost {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1rem;
+  color: var(--text-muted);
+  font-size: 0.8125rem;
+  font-weight: 500;
+  border-radius: 0.5rem;
+  transition: all 0.2s;
+}
+.btn-ghost:hover { background: rgba(42,63,88,0.5); color: var(--text-primary); }

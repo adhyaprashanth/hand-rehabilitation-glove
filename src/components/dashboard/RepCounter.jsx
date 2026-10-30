@@ -32,11 +32,12 @@ export default function RepCounter({ repCount = 0, onReset }) {
       initial={{ opacity: 0, scale: 0.95 }}
       whileInView={{ opacity: 1, scale: 1 }}
       viewport={{ once: true }}
-      className="relative overflow-hidden flex flex-col items-center gap-5 p-6 rounded-2xl border transition-all duration-300"
+      className="relative overflow-hidden flex flex-col items-center gap-5 p-6"
       style={{
-        background: 'var(--bg-card)',
-        borderColor: 'var(--border-subtle)',
-        boxShadow: 'var(--shadow-card)',
+        background: '#0F1E30',
+        border: '1px solid #26354A',
+        borderRadius: '1rem',
+        boxShadow: '0 2px 12px rgba(0,0,0,0.4)',
       }}
     >
       {/* Top coral accent line */}
