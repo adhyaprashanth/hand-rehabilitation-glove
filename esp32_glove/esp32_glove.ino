@@ -2,19 +2,8 @@
  * ============================================================================
  * 🧤 Hand Rehabilitation Glove - ESP32 Firmware
  * File: esp32_glove.ino
- * Stage 3: 5-Finger Sensors with Real-Time Web Dashboard Integration
+ * Stage 3: 5-Finger Sensors with Hardware Noise Filtering & Stability
  * ============================================================================
- * 
- * Hardware Connections (Labels printed on your ESP32 board):
- * ----------------------------------------------------------------------------
- *   Finger   | Board Label | Sensor Leg 1 | Junction to Resistor | Resistor to
- *   ---------+-------------+--------------+----------------------+-------------
- *   Thumb    | 34 (or D34) | ESP32 3.3V   | ESP32 Pin 34         | ESP32 GND
- *   Index    | 35 (or D35) | ESP32 3.3V   | ESP32 Pin 35         | ESP32 GND
- *   Middle   | 32 (or D32) | ESP32 3.3V   | ESP32 Pin 32         | ESP32 GND
- *   Ring     | 33 (or D33) | ESP32 3.3V   | ESP32 Pin 33         | ESP32 GND
- *   Little   | VP          | ESP32 3.3V   | ESP32 Pin VP (36)    | ESP32 GND
- * ----------------------------------------------------------------------------
  */
 
 // ========================== BOARD PIN DEFINITIONS ==========================
@@ -25,40 +14,48 @@
 #define PIN_LITTLE  36   // Labeled 'VP' on your board
 
 // ========================== GLOVE CONFIGURATION ==========================
-#define HAND_SIDE "RIGHT"         // "RIGHT" or "LEFT" hand glove
+#define HAND_SIDE "RIGHT"
 #define NUM_FINGERS 5
-const int NUM_SAMPLES = 10;       // Samples for ADC noise filtering
 
-// Structure to store finger configuration and live telemetry
+// High sample count + small settling delay to eliminate ESP32 ADC noise/jitter
+const int NUM_SAMPLES = 30;
+
+// Exponential Moving Average filter smoothing factor (0.0 to 1.0)
+// 0.25 gives very smooth, stable numbers while reacting quickly to physical bends
+const float EMA_ALPHA = 0.25;
+
 struct FingerSensor {
-  const char* id;                 // e.g. "thumb", "index"
-  const char* name;               // e.g. "Thumb"
-  const char* label;              // Label printed on board: "34", "VP", etc.
-  int pin;                        // ESP32 ADC pin number
-  int rawFlat;                    // Raw ADC reading when straight (0% bend)
-  int rawBent;                    // Raw ADC reading when bent 90° (100% bend)
-  int currentRaw;                 // Live raw ADC
-  int bendPercent;                // Live 0 - 100%
+  const char* id;
+  const char* name;
+  const char* label;
+  int pin;
+  int rawFlat;
+  int rawBent;
+  float filteredRaw;   // Smoothed float ADC reading
+  int currentRaw;      // Integer raw value
+  int bendPercent;     // 0 - 100%
 };
 
-// 5-Finger Sensor Array
-// Adjust rawFlat and rawBent per finger if needed (Default: Flat=1000, Bent=500)
 FingerSensor fingers[NUM_FINGERS] = {
-  { "thumb",  "Thumb ", "34", PIN_THUMB,  1000, 500, 0, 0 },
-  { "index",  "Index ", "35", PIN_INDEX,  1000, 500, 0, 0 },
-  { "middle", "Middle", "32", PIN_MIDDLE, 1000, 500, 0, 0 },
-  { "ring",   "Ring  ", "33", PIN_RING,   1000, 500, 0, 0 },
-  { "little", "Little", "VP", PIN_LITTLE, 1000, 500, 0, 0 }
+  { "thumb",  "Thumb ", "34", PIN_THUMB,  1000, 500, 1000.0, 1000, 0 },
+  { "index",  "Index ", "35", PIN_INDEX,  1000, 500, 1000.0, 1000, 0 },
+  { "middle", "Middle", "32", PIN_MIDDLE, 1000, 500, 1000.0, 1000, 0 },
+  { "ring",   "Ring  ", "33", PIN_RING,   1000, 500, 1000.0, 1000, 0 },
+  { "little", "Little", "VP", PIN_LITTLE, 1000, 500, 1000.0, 1000, 0 }
 };
 
 /**
- * Reads ADC multiple times and returns the average to eliminate noise
+ * Reads ADC multiple times with settling delay to stabilize the internal capacitor
  */
 int readAveragedADC(int pin) {
+  // Dummy read to allow the ESP32 ADC mux/sampling capacitor to settle to this pin
+  analogRead(pin);
+  delayMicroseconds(50);
+
   long sum = 0;
   for (int i = 0; i < NUM_SAMPLES; i++) {
     sum += analogRead(pin);
-    delayMicroseconds(150);
+    delayMicroseconds(200);
   }
   return (int)(sum / NUM_SAMPLES);
 }
@@ -73,15 +70,26 @@ void setup() {
   // Set attenuation for full 0 - 3.3V range
   analogSetAttenuation(ADC_11db);
 
+  // Pre-seed the filter with initial stable readings
+  for (int i = 0; i < NUM_FINGERS; i++) {
+    int initial = readAveragedADC(fingers[i].pin);
+    fingers[i].filteredRaw = initial;
+    fingers[i].currentRaw = initial;
+  }
+
   Serial.println("{\"status\":\"ESP32 Hand Glove Initialized\"}");
 }
 
 void loop() {
-  // 1. Read all 5 sensors and calculate bend percentage
+  // 1. Read all 5 sensors with Exponential Moving Average (EMA) smoothing
   for (int i = 0; i < NUM_FINGERS; i++) {
-    fingers[i].currentRaw = readAveragedADC(fingers[i].pin);
+    int sample = readAveragedADC(fingers[i].pin);
 
-    // Map raw value to 0-100% bend (1000 -> 0%, 500 -> 100%)
+    // EMA Filter formula: Filtered = (alpha * current_sample) + ((1 - alpha) * previous_filtered)
+    fingers[i].filteredRaw = (EMA_ALPHA * sample) + ((1.0 - EMA_ALPHA) * fingers[i].filteredRaw);
+    fingers[i].currentRaw = (int)(fingers[i].filteredRaw + 0.5);
+
+    // Calculate bend percentage using calibrated flat and bent limits
     int pct = map(fingers[i].currentRaw, fingers[i].rawFlat, fingers[i].rawBent, 0, 100);
     fingers[i].bendPercent = constrain(pct, 0, 100);
   }
@@ -113,5 +121,5 @@ void loop() {
   Serial.print(fingers[4].bendPercent);
   Serial.println("}}");
 
-  delay(150); // Refresh rate: ~7 updates per second (matches dashboard interval)
+  delay(120); // ~8 stable updates per second
 }
